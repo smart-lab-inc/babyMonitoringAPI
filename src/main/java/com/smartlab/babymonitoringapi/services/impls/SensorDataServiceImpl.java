@@ -37,8 +37,8 @@ public class SensorDataServiceImpl implements ISensorDataService {
                 .build();
     }
 
-    private com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData toSensorData(CreateSensorData createSensorData) {
-        return com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData.builder()
+    private SensorData toSensorData(CreateSensorData createSensorData) {
+        return SensorData.builder()
                 .name(createSensorData.getName())
                 .value(createSensorData.getValue())
                 .measurement(createSensorData.getMeasurement())
