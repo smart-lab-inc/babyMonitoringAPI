@@ -1,10 +1,12 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
 import com.smartlab.babymonitoringapi.dtos.requests.CreateSensorData;
+import com.smartlab.babymonitoringapi.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.ISensorDataRepository;
 import com.smartlab.babymonitoringapi.services.ISensorDataService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,21 +18,27 @@ public class SensorDataServiceImpl implements ISensorDataService {
     private ISensorDataRepository repository;
 
     @Override
-    public com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData create(CreateSensorData createSensorData) {
+    public SensorData create(CreateSensorData createSensorData) {
         return null;
     }
 
     @Override
-    public List<SensorData> createMany(List<CreateSensorData> createSensorData) {
-        List<com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData> dataList = createSensorData.stream().map(this::toSensorData).toList();
+    public BaseResponse createMany(List<CreateSensorData> createSensorData) {
+        List<SensorData> dataList = createSensorData.stream().map(this::toSensorData).toList();
 
-        List<com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData> savedDataList = repository.saveAll(dataList);
+        List<SensorData> savedDataList = repository.saveAll(dataList);
 
-        return savedDataList;
+        return BaseResponse.builder()
+                .data(savedDataList)
+                .message("Sensor data saved successfully!")
+                .status(HttpStatus.CREATED)
+                .statusCode(HttpStatus.CREATED.value())
+                .success(true)
+                .build();
     }
 
-    private com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData toSensorData(CreateSensorData createSensorData) {
-        return com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData.builder()
+    private SensorData toSensorData(CreateSensorData createSensorData) {
+        return SensorData.builder()
                 .name(createSensorData.getName())
                 .value(createSensorData.getValue())
                 .measurement(createSensorData.getMeasurement())
