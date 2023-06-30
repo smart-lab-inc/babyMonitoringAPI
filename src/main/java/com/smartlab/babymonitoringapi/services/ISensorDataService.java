@@ -7,7 +7,7 @@ import com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData;
 import java.util.List;
 
 public interface ISensorDataService {
-    com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData create(CreateSensorData createSensorData);
+    SensorData create(CreateSensorData createSensorData);
 
     BaseResponse createMany (List<CreateSensorData> createSensorData);
 }
