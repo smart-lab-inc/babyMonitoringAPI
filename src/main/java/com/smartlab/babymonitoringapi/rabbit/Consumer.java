@@ -14,7 +14,7 @@ public class Consumer {
     @Autowired
     private ISensorDataService sensorDataService;
 
-    @RabbitListener(queues = {"${queue.on-new-sensor-data}"})
+    @RabbitListener(queues = {"${exchange.queue.onNewSensorData.name}"})
     public void onNewSensorData(List<CreateSensorData> createSensorData) {
         sensorDataService.createMany(createSensorData);
     }
