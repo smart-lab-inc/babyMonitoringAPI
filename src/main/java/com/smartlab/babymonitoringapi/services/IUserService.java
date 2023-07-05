@@ -1,7 +1,7 @@
 package com.smartlab.babymonitoringapi.services;
 
-import com.smartlab.babymonitoringapi.dtos.requests.CreateUserRequest;
-import com.smartlab.babymonitoringapi.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateUserRequest;
+import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
 
 public interface IUserService {
 

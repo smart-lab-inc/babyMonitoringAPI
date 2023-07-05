@@ -1,6 +1,6 @@
 package com.smartlab.babymonitoringapi.rabbit;
 
-import com.smartlab.babymonitoringapi.dtos.requests.CreateSensorData;
+import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateSensorData;
 import com.smartlab.babymonitoringapi.services.ISensorDataService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
