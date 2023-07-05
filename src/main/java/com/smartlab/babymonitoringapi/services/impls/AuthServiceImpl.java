@@ -4,7 +4,6 @@ import com.smartlab.babymonitoringapi.controllers.dtos.requests.AuthenticationRe
 import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.services.IAuthService;
 import com.smartlab.babymonitoringapi.utils.JWTUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service @Transactional
+@Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements IAuthService {
     private final AuthenticationManager authenticationManager;
@@ -27,7 +26,7 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     public BaseResponse authenticate(AuthenticationRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword()));
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
