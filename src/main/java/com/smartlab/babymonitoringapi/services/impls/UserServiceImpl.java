@@ -8,7 +8,7 @@ import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserReposi
 import com.smartlab.babymonitoringapi.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +16,9 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private IUserRepository repository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 //  TODO: Implementar los métodos que faltan (get, put, delete)
 
@@ -41,7 +44,7 @@ public class UserServiceImpl implements IUserService {
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .password(encodePassword(request.getPassword()))
+                .password(passwordEncoder.encode(request.getPassword()))
                 .build();
     }
 
@@ -51,9 +54,5 @@ public class UserServiceImpl implements IUserService {
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
         return response;
-    }
-
-    private static String encodePassword(String password) {
-        return new BCryptPasswordEncoder().encode(password);
     }
 }
