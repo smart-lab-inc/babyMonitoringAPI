@@ -1,7 +1,7 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
-import com.smartlab.babymonitoringapi.dtos.requests.CreateSensorData;
-import com.smartlab.babymonitoringapi.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateSensorData;
+import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.ISensorDataRepository;
 import com.smartlab.babymonitoringapi.services.ISensorDataService;
