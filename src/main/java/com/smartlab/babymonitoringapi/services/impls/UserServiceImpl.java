@@ -1,8 +1,8 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
-import com.smartlab.babymonitoringapi.dtos.requests.CreateUserRequest;
-import com.smartlab.babymonitoringapi.dtos.responses.BaseResponse;
-import com.smartlab.babymonitoringapi.dtos.responses.UserResponse;
+import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateUserRequest;
+import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.controllers.dtos.responses.UserResponse;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserRepository;
 import com.smartlab.babymonitoringapi.services.IUserService;
@@ -21,8 +21,9 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse create(CreateUserRequest request) {
-        if (repository.existsByEmail(request.getEmail()))
+        if (repository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email is already in use");
+        }
 
         User user = repository.save(from(request));
 

@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("user")
+@Document("users")
 @Getter @Setter @Builder
 public class User {
 

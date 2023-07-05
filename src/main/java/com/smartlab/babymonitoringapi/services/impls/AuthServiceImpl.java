@@ -1,11 +1,12 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
-import com.smartlab.babymonitoringapi.dtos.requests.AuthenticationRequest;
-import com.smartlab.babymonitoringapi.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.controllers.dtos.requests.AuthenticationRequest;
+import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.services.IAuthService;
 import com.smartlab.babymonitoringapi.utils.JWTUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,8 +20,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements IAuthService {
     private final AuthenticationManager authenticationManager;
-    private final JWTUtils jwtUtils;
 
+    @Value("${smartlab.app.jwtSecret}")
+    private String jwtSecret;
+
+    @Override
     public BaseResponse authenticate(AuthenticationRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword()));
@@ -35,7 +39,7 @@ public class AuthServiceImpl implements IAuthService {
         payload.put("userId", userDetails.getUser().getId());
         payload.put("fullName", fullName);
 
-        String token = jwtUtils.generateToken(email, payload);
+        String token = JWTUtils.generateToken(jwtSecret, email, payload);
 
         Map<String, String> data = new HashMap<>();
         data.put("accessToken", token);
