@@ -39,6 +39,7 @@ public class ApplicationSecurityConfig {
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
                                 .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/monitor/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/user/**").permitAll()
 
                                 .anyRequest().authenticated())

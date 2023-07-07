@@ -1,5 +1,6 @@
 package com.smartlab.babymonitoringapi.persistance.mongo.documents;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,8 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("monitors")
-@Getter
-@Setter
+@Getter @Setter @Builder
 public class Monitor {
 
     @Id
@@ -23,5 +23,6 @@ public class Monitor {
     private Boolean isActivated;
 
     @DBRef
+    @Value("#{false}")
     private User user;
 }
