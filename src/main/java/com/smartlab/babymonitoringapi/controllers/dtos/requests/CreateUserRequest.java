@@ -20,4 +20,6 @@ public class CreateUserRequest {
     @NotEmpty
     private String lastName;
 
+    @NotEmpty
+    private String phoneNumber;
 }
