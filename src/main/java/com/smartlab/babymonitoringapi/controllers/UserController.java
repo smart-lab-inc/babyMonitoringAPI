@@ -1,6 +1,7 @@
 package com.smartlab.babymonitoringapi.controllers;
 
 import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateUserRequest;
+import com.smartlab.babymonitoringapi.controllers.dtos.requests.UpdateUserRequest;
 import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.services.IUserService;
 import jakarta.validation.Valid;
@@ -15,10 +16,23 @@ public class UserController {
     @Autowired
     private IUserService service;
 
-//  TODO: Implementar los métodos que faltan (get, put, delete)
-
-    @PostMapping("create")
+    @PostMapping
     public ResponseEntity<BaseResponse> create(@RequestBody @Valid CreateUserRequest request) {
         return service.create(request).apply();
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<BaseResponse> get(@PathVariable String id) {
+        return service.get(id).apply();
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<BaseResponse> update(@PathVariable String id, @RequestBody @Valid UpdateUserRequest request) {
+        return service.update(request, id).apply();
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<BaseResponse> delete(@PathVariable String id) {
+        return service.delete(id).apply();
     }
 }

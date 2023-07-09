@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 
 @Getter
-public class CreateUserRequest {
+public class UpdateUserRequest {
 
     @Email
     @NotEmpty
