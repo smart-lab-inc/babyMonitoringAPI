@@ -16,22 +16,22 @@ public class UserController {
     @Autowired
     private IUserService service;
 
-    @PostMapping("create")
+    @PostMapping
     public ResponseEntity<BaseResponse> create(@RequestBody @Valid CreateUserRequest request) {
         return service.create(request).apply();
     }
 
-    @GetMapping("get/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<BaseResponse> get(@PathVariable String id) {
         return service.get(id).apply();
     }
 
-    @PutMapping("update/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<BaseResponse> update(@PathVariable String id, @RequestBody @Valid UpdateUserRequest request) {
         return service.update(request, id).apply();
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<BaseResponse> delete(@PathVariable String id) {
         return service.delete(id).apply();
     }
