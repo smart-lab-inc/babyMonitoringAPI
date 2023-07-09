@@ -53,8 +53,9 @@ public class UserServiceImpl implements IUserService {
     public BaseResponse get(String id) {
         UserDetailsImpl userDetails = getUserAuthenticated();
 
-        if (!userDetails.getUser().getId().equals(id))
+        if (!userDetails.getUser().getId().equals(id)) {
             throw new AccessDeniedException();
+        }
 
         User user = findOneAndEnsureExistById(id);
 
@@ -71,8 +72,9 @@ public class UserServiceImpl implements IUserService {
     public BaseResponse update(UpdateUserRequest request, String id) {
         User userAuthenticated = getUserAuthenticated().getUser();
 
-        if (!userAuthenticated.getId().equals(id))
+        if (!userAuthenticated.getId().equals(id)) {
             throw new AccessDeniedException();
+        }
 
         if (repository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email is already in use");
@@ -92,11 +94,13 @@ public class UserServiceImpl implements IUserService {
     public BaseResponse delete(String id) {
         User user = getUserAuthenticated().getUser();
 
-        if (!repository.existsById(id))
+        if (!repository.existsById(id)) {
             throw new ObjectNotFoundException("User not found");
+        }
 
-        if (!user.getId().equals(id))
+        if (!user.getId().equals(id)) {
             throw new AccessDeniedException();
+        }
 
         repository.deleteById(id);
 
