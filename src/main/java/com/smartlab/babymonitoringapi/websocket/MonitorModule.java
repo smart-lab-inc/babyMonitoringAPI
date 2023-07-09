@@ -8,13 +8,16 @@ import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.services.IUserService;
 import com.smartlab.babymonitoringapi.utils.JWTUtils;
-import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.websocket.dtos.Message;
+import com.smartlab.babymonitoringapi.websocket.services.SocketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -26,19 +29,18 @@ public class MonitorModule {
     @Autowired
     private IUserService userService;
 
+    @Autowired
+    private SocketService socketService;
+
     public MonitorModule(SocketIOServer server) {
         SocketIONamespace monitorNamespace = server.addNamespace("/monitor");
         monitorNamespace.addConnectListener(onConnected());
         monitorNamespace.addDisconnectListener(onDisconnected());
-        monitorNamespace.addEventListener("send_message", Message.class, onChatReceived());
+        monitorNamespace.addEventListener("send_sensor_data", Message.class, onSensorDataReceived());
     }
 
-    private DataListener<Message> onChatReceived() {
-        return (senderClient, data, ackSender) -> {
-            log.info(data.toString());
-//            senderClient.getNamespace().getBroadcastOperations().sendEvent("get_message", data.getBody());
-
-        };
+    private DataListener<Message> onSensorDataReceived() {
+        return (senderClient, data, ackSender) -> socketService.sendMessage(data.getBody(), data.getRoom(), "get_sensor_data", senderClient);
     }
 
     private ConnectListener onConnected() {
@@ -50,13 +52,14 @@ public class MonitorModule {
                 client.disconnect();
             }
 
-            String emailFromToken = JWTUtils.getEmailFromJWT(token, jwtSecret);
-            BaseResponse response = userService.getByMonitorId(monitorId);
-            User user = (User) response.getData();
+            List<User> optionalUser = userService.getByMonitorId(monitorId);
+            log.info("es vacio: " + optionalUser.size());
 
-            if (!StringUtils.hasText(monitorId) || !emailFromToken.equals(user.getEmail())) {
+            if (!StringUtils.hasText(monitorId) || optionalUser.isEmpty()) {
                 client.disconnect();
             }
+
+            client.joinRoom(monitorId);
 
             log.info("Socket ID[{}]  Connected to socket", client.getSessionId().toString());
         };
