@@ -1,5 +1,7 @@
 package com.smartlab.babymonitoringapi.security.configuration;
 
+import com.smartlab.babymonitoringapi.security.jwt.AuthEntrypointJWT;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,6 +28,9 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableMethodSecurity
 public class ApplicationSecurityConfig {
 
+    @Autowired
+    private AuthEntrypointJWT authEntrypointJWT;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -38,7 +43,9 @@ public class ApplicationSecurityConfig {
 
                                 .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
-                .addFilterBefore(jwtTokenVerifierFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtTokenVerifierFilter(), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(authEntrypointJWT));
         return http.build();
     }
 
