@@ -1,4 +1,4 @@
-package com.smartlab.babymonitoringapi.controllers.exceptions;
+package com.smartlab.babymonitoringapi.web.controllers.exceptions;
 
 public class ObjectNotFoundException extends RuntimeException {
 

@@ -1,7 +1,7 @@
 package com.smartlab.babymonitoringapi.services;
 
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.AuthenticationRequest;
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.web.dtos.requests.AuthenticationRequest;
+import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 
 public interface IAuthService {
 

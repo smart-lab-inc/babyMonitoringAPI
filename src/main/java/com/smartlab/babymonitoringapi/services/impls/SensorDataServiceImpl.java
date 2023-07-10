@@ -1,10 +1,10 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateSensorData;
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.ISensorDataRepository;
+import com.smartlab.babymonitoringapi.rabbit.dtos.requests.CreateSensorData;
 import com.smartlab.babymonitoringapi.services.ISensorDataService;
+import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

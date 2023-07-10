@@ -1,6 +1,6 @@
-package com.smartlab.babymonitoringapi.controllers;
+package com.smartlab.babymonitoringapi.web.controllers;
 
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

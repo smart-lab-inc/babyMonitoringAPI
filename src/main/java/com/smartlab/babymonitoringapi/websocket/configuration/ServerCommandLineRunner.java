@@ -1,7 +1,6 @@
 package com.smartlab.babymonitoringapi.configuration;
 
 import com.corundumstudio.socketio.SocketIOServer;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,7 +14,7 @@ public class ServerCommandLineRunner implements CommandLineRunner {
     private SocketIOServer server;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         server.start();
     }
 }

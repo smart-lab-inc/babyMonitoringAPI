@@ -1,11 +1,11 @@
-package com.smartlab.babymonitoringapi.controllers.dtos.requests;
+package com.smartlab.babymonitoringapi.web.dtos.requests;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 
 @Getter
-public class CreateUserRequest {
+public class UpdateUserRequest {
 
     @Email
     @NotEmpty

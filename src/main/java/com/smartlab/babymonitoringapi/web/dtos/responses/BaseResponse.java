@@ -1,4 +1,4 @@
-package com.smartlab.babymonitoringapi.controllers.dtos.responses;
+package com.smartlab.babymonitoringapi.web.dtos.responses;
 
 import lombok.Builder;
 import lombok.Getter;

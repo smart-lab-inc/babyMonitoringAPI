@@ -1,14 +1,14 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateUserRequest;
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.UpdateUserRequest;
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.UserResponse;
-import com.smartlab.babymonitoringapi.controllers.exceptions.AccessDeniedException;
-import com.smartlab.babymonitoringapi.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserRepository;
 import com.smartlab.babymonitoringapi.services.IUserService;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
+import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
+import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
+import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.web.dtos.responses.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;

@@ -28,8 +28,8 @@ public class JWTTokenVerifierFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = getJWTFromRequest(request);
-        if (StringUtils.hasText(token) && JWTUtils.isValidateToken(jwtSecret, token)) {
-            String username = JWTUtils.getEmailFromJWT(jwtSecret, token);
+        if (StringUtils.hasText(token) && JWTUtils.isValidateToken(token, jwtSecret)) {
+            String username = JWTUtils.getEmailFromJWT(token, jwtSecret);
 
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
 

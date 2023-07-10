@@ -1,9 +1,9 @@
 package com.smartlab.babymonitoringapi.services;
 
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateUserRequest;
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.UpdateUserRequest;
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
+import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
+import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
+import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 
 public interface IUserService {
 

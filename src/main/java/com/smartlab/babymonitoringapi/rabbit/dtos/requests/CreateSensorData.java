@@ -1,4 +1,4 @@
-package com.smartlab.babymonitoringapi.controllers.dtos.requests;
+package com.smartlab.babymonitoringapi.rabbit.dtos.requests;
 
 import lombok.Getter;
 import lombok.Setter;
