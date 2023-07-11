@@ -3,44 +3,42 @@ package com.smartlab.babymonitoringapi.websocket;
 import com.corundumstudio.socketio.SocketIONamespace;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
-import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.services.IUserService;
 import com.smartlab.babymonitoringapi.utils.JWTUtils;
-import com.smartlab.babymonitoringapi.websocket.dtos.Message;
-import com.smartlab.babymonitoringapi.websocket.services.SocketService;
+import com.smartlab.babymonitoringapi.websocket.services.ISocketService;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Optional;
 
-@Slf4j
 @Component
+@Slf4j
 public class MonitorModule {
+    @Autowired
+    private SocketIOServer server;
 
-    @Value("${smartlab.app.jwtSecret}")
-    private String jwtSecret;
+    @Autowired
+    private ISocketService socketService;
 
     @Autowired
     private IUserService userService;
 
-    @Autowired
-    private SocketService socketService;
+    @Value("${smartlab.app.jwtSecret}")
+    private String jwtSecret;
 
-    public MonitorModule(SocketIOServer server) {
-        SocketIONamespace monitorNamespace = server.addNamespace("/monitor");
+    @Value("${websocket.namespace.monitoring}")
+    private String monitoringNamespace;
+
+    @PostConstruct
+    private void init() {
+        SocketIONamespace monitorNamespace = server.addNamespace(monitoringNamespace);
         monitorNamespace.addConnectListener(onConnected());
         monitorNamespace.addDisconnectListener(onDisconnected());
-        monitorNamespace.addEventListener("send_sensor_data", Message.class, onSensorDataReceived());
-    }
-
-    private DataListener<Message> onSensorDataReceived() {
-        return (senderClient, data, ackSender) -> socketService.sendMessage(data.getBody(), data.getRoom(), "get_sensor_data", senderClient);
     }
 
     private ConnectListener onConnected() {
@@ -48,14 +46,24 @@ public class MonitorModule {
             String token = client.getHandshakeData().getSingleUrlParam("token");
             String monitorId = client.getHandshakeData().getSingleUrlParam("monitorId");
 
-            if (!StringUtils.hasText(token) || !JWTUtils.isValidateToken(token, jwtSecret)) {
+            if (token.isEmpty() || monitorId.isEmpty()) {
+                socketService.sendErrorMessageToSocket(client, "Token or monitorId is needed");
                 client.disconnect();
                 return;
             }
 
             Optional<User> optionalUser = userService.getByMonitorId(monitorId);
 
-            if (!StringUtils.hasText(monitorId) || optionalUser.isEmpty()) {
+            if (!JWTUtils.isValidateToken(token, jwtSecret) || optionalUser.isEmpty()) {
+                socketService.sendErrorMessageToSocket(client, "Invalid token or monitorId");
+                client.disconnect();
+                return;
+            }
+
+            String emailFromJWT = JWTUtils.getEmailFromJWT(token, jwtSecret);
+
+            if (!isEmailMatch(optionalUser.get().getEmail(), emailFromJWT)) {
+                socketService.sendErrorMessageToSocket(client, "You are not the owner of this monitor");
                 client.disconnect();
                 return;
             }
@@ -67,6 +75,10 @@ public class MonitorModule {
 
     private DisconnectListener onDisconnected() {
         return client -> log.info("Client[{}] - Disconnected from socket", client.getSessionId().toString());
+    }
+
+    private boolean isEmailMatch(String email1, String email2) {
+        return email1.equals(email2);
     }
 
 }

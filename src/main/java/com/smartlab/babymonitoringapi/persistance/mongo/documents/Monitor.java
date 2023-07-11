@@ -6,8 +6,9 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 @Document("monitors")
 @Getter @Setter @Builder
@@ -19,8 +20,9 @@ public class Monitor {
     @Indexed(unique = true)
     private String serialNumber;
 
-    @Value("#{false}")
     private Boolean isActivated;
 
     private String userId;
+
+    private List<String> sensorDataIds;
 }

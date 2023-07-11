@@ -27,7 +27,7 @@ public class MonitorServiceImpl implements IMonitorService {
     public BaseResponse create(CreateMonitorRequest request) {
         String serialNumber = UUID.randomUUID().toString();
 
-        Monitor monitor = Monitor.builder().serialNumber(serialNumber).userId(request.getUserId()).build();
+        Monitor monitor = Monitor.builder().serialNumber(serialNumber).userId(request.getUserId()).isActivated(Boolean.FALSE).build();
         Monitor savedMonitor = repository.save(monitor);
 
         User user = userService.findOneAndEnsureExistById(request.getUserId());
@@ -51,5 +51,10 @@ public class MonitorServiceImpl implements IMonitorService {
     @Override
     public Monitor findOneAndEnsureExistById(String id) {
         return repository.findOneById(id).orElseThrow(() -> new RuntimeException("Monitor not found"));
+    }
+
+    @Override
+    public Monitor update(Monitor monitor) {
+        return repository.save(monitor);
     }
 }

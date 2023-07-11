@@ -8,4 +8,6 @@ public interface IMonitorService {
     Monitor findOneAndEnsureExistById(String id);
 
     BaseResponse create(CreateMonitorRequest request);
+
+    Monitor update(Monitor monitor);
 }

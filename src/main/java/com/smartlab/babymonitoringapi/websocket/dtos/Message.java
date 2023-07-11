@@ -1,16 +1,21 @@
 package com.smartlab.babymonitoringapi.websocket.dtos;
 
 import com.smartlab.babymonitoringapi.constants.MessageType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-@Getter @Setter @Builder
+@Getter @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Message {
 
-    private MessageType messageType;
+    private Object data;
 
-    private String body;
+    private String message;
 
-    private String room;
+    private MessageType type;
+
+    private Boolean success;
 }

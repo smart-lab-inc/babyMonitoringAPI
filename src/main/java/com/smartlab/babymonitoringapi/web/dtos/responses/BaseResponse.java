@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Builder
-@Getter @Setter
+@Getter
+@Setter
 public class BaseResponse {
 
     private HttpStatus status;
