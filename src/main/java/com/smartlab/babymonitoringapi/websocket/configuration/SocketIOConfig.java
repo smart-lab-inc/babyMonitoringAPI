@@ -1,4 +1,4 @@
-package com.smartlab.babymonitoringapi.configuration;
+package com.smartlab.babymonitoringapi.websocket.configuration;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SocketIOConfig {
-    @Value("${socket-server.host}")
+    @Value("${socketServer.host}")
     private String host;
 
-    @Value("${socket-server.port}")
+    @Value("${socketServer.port}")
     private Integer port;
 
     @Bean

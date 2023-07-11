@@ -16,4 +16,6 @@ public interface IUserService {
     BaseResponse delete(String id);
 
     User findOneAndEnsureExistById(String id);
+
+    BaseResponse getByMonitorId(String id);
 }

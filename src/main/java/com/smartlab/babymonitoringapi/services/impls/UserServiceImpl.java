@@ -1,7 +1,9 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
+import com.smartlab.babymonitoringapi.persistance.mongo.documents.Monitor;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserRepository;
+import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.IUserService;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
@@ -25,6 +27,9 @@ public class UserServiceImpl implements IUserService {
     private IUserRepository repository;
 
     @Autowired
+    private IMonitorService monitorService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private static UserDetailsImpl getUserAuthenticated() {
@@ -38,10 +43,10 @@ public class UserServiceImpl implements IUserService {
             throw new RuntimeException("Email is already in use");
         }
 
-        User user = repository.save(from(request));
+        User user = repository.save(toUser(request));
 
         return BaseResponse.builder()
-                .data(from(user))
+                .data(toUserResponse(user))
                 .message("User data saved successfully!")
                 .status(HttpStatus.CREATED)
                 .statusCode(HttpStatus.CREATED.value())
@@ -60,9 +65,24 @@ public class UserServiceImpl implements IUserService {
         User user = findOneAndEnsureExistById(id);
 
         return BaseResponse.builder()
-                .data(from(user))
+                .data(toUserResponse(user))
                 .message("User found")
                 .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .success(Boolean.TRUE)
+                .build();
+    }
+
+    @Override
+    public BaseResponse getByMonitorId(String id) {
+        Monitor monitor = monitorService.findOneAndEnsureExistById(id);
+        User user = monitor.getUser();
+
+        return BaseResponse.builder()
+                .data(user)
+                .message("User found")
+                .status(HttpStatus.OK)
+                .success(Boolean.TRUE)
                 .statusCode(HttpStatus.OK.value())
                 .success(Boolean.TRUE)
                 .build();
@@ -82,7 +102,7 @@ public class UserServiceImpl implements IUserService {
 
         userAuthenticated = update(userAuthenticated, request);
         return BaseResponse.builder()
-                .data(from(userAuthenticated))
+                .data(toUserResponse(userAuthenticated))
                 .message("User updated correctly")
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
@@ -128,7 +148,7 @@ public class UserServiceImpl implements IUserService {
         return repository.save(user);
     }
 
-    User from(CreateUserRequest request) {
+    private User toUser(CreateUserRequest request) {
         return User.builder()
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
@@ -138,7 +158,7 @@ public class UserServiceImpl implements IUserService {
                 .build();
     }
 
-    UserResponse from(User user) {
+    private UserResponse toUserResponse(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
         response.setEmail(user.getEmail());

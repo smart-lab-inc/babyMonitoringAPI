@@ -1,14 +1,12 @@
-package com.smartlab.babymonitoringapi.configuration;
+package com.smartlab.babymonitoringapi.websocket.configuration;
 
 import com.corundumstudio.socketio.SocketIOServer;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j
-public class ServerCommandLineRunner implements CommandLineRunner {
+public class WebsocketServerRunner implements CommandLineRunner {
 
     @Autowired
     private SocketIOServer server;

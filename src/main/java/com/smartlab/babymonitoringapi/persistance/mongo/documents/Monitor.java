@@ -1,34 +1,27 @@
 package com.smartlab.babymonitoringapi.persistance.mongo.documents;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
-@Document("users")
-@Getter @Setter @Builder
-public class User {
+@Document("monitors")
+@Getter
+@Setter
+public class Monitor {
 
     @Id
     private String id;
 
     @Indexed(unique = true)
-    private String email;
+    private String serialNumber;
 
-    private String password;
-
-    private String firstName;
-
-    private String lastName;
-
-    private String phoneNumber;
+    @Value("#{false}")
+    private Boolean isActivated;
 
     @DBRef
-    private List<Monitor> monitors;
-
+    private User user;
 }
