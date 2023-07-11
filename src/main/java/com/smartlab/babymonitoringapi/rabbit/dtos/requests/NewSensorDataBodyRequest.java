@@ -3,7 +3,7 @@ package com.smartlab.babymonitoringapi.rabbit.dtos.requests;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
 public class NewSensorDataBodyRequest {
 
     private String name;

@@ -5,7 +5,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter @Setter
+@Getter
 public class NewSensorDataRequest {
 
     private String monitorId;
