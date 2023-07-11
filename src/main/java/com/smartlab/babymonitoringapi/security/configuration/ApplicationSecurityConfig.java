@@ -42,7 +42,7 @@ public class ApplicationSecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/monitor/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/user/**").permitAll()
 
-                                .anyRequest().permitAll())
+                                .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .addFilterBefore(jwtTokenVerifierFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception ->
