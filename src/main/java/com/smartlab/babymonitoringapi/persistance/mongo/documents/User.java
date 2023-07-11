@@ -29,10 +29,6 @@ public class User {
 
     private String phoneNumber;
 
-    @DBRef
-    private List<Monitor> monitors;
-
-    @Value("${my.list.of.strings:}#{T(java.util.Collections).emptyList()}")
     private List<String> monitorIds;
 
 }
