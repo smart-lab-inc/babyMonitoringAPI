@@ -1,4 +1,4 @@
-package com.smartlab.babymonitoringapi.controllers.exceptions;
+package com.smartlab.babymonitoringapi.web.controllers.exceptions;
 
 import org.springframework.dao.DataIntegrityViolationException;
 

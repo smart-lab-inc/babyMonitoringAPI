@@ -1,13 +1,11 @@
 package com.smartlab.babymonitoringapi.services;
 
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateSensorData;
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
-import com.smartlab.babymonitoringapi.persistance.mongo.documents.SensorData;
+import com.smartlab.babymonitoringapi.rabbit.dtos.requests.NewSensorDataBodyRequest;
+import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 
 import java.util.List;
 
 public interface ISensorDataService {
-    SensorData create(CreateSensorData createSensorData);
+    BaseResponse createManyWithSameMonitorId(List<NewSensorDataBodyRequest> createSensorDatumRequests, String monitorId);
 
-    BaseResponse createMany (List<CreateSensorData> createSensorData);
 }

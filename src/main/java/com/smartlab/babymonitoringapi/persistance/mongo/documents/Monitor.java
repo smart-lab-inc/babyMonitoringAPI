@@ -6,29 +6,23 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document("users")
+@Document("monitors")
 @Getter @Setter @Builder
-public class User {
+public class Monitor {
 
     @Id
     private String id;
 
     @Indexed(unique = true)
-    private String email;
+    private String serialNumber;
 
-    private String password;
+    private Boolean isActivated;
 
-    private String firstName;
+    private String userId;
 
-    private String lastName;
-
-    private String phoneNumber;
-
-    private List<String> monitorIds;
-
+    private List<String> sensorDataIds;
 }

@@ -1,14 +1,14 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.CreateUserRequest;
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.UpdateUserRequest;
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.UserResponse;
-import com.smartlab.babymonitoringapi.controllers.exceptions.AccessDeniedException;
-import com.smartlab.babymonitoringapi.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserRepository;
 import com.smartlab.babymonitoringapi.services.IUserService;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
+import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
+import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
+import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.web.dtos.responses.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -41,7 +42,7 @@ public class UserServiceImpl implements IUserService {
         User user = repository.save(from(request));
 
         return BaseResponse.builder()
-                .data(from(user))
+                .data(toUserResponse(user))
                 .message("User data saved successfully!")
                 .status(HttpStatus.CREATED)
                 .statusCode(HttpStatus.CREATED.value())
@@ -60,12 +61,21 @@ public class UserServiceImpl implements IUserService {
         User user = findOneAndEnsureExistById(id);
 
         return BaseResponse.builder()
-                .data(from(user))
+                .data(toUserResponse(user))
                 .message("User found")
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
                 .success(Boolean.TRUE)
                 .build();
+    }
+
+    public Optional<User> getByMonitorId(String id) {
+        return repository.findByMonitorIdsContains(id);
+    }
+
+    @Override
+    public User update(User user) {
+        return repository.save(user);
     }
 
     @Override
@@ -82,7 +92,7 @@ public class UserServiceImpl implements IUserService {
 
         userAuthenticated = update(userAuthenticated, request);
         return BaseResponse.builder()
-                .data(from(userAuthenticated))
+                .data(toUserResponse(userAuthenticated))
                 .message("User updated correctly")
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
@@ -128,7 +138,7 @@ public class UserServiceImpl implements IUserService {
         return repository.save(user);
     }
 
-    User from(CreateUserRequest request) {
+    private User from(CreateUserRequest request) {
         return User.builder()
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
@@ -138,7 +148,7 @@ public class UserServiceImpl implements IUserService {
                 .build();
     }
 
-    UserResponse from(User user) {
+    private UserResponse toUserResponse(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
         response.setEmail(user.getEmail());

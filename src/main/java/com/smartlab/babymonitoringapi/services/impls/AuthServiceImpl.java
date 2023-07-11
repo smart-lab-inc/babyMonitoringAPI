@@ -1,9 +1,9 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
-import com.smartlab.babymonitoringapi.controllers.dtos.requests.AuthenticationRequest;
-import com.smartlab.babymonitoringapi.controllers.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.services.IAuthService;
 import com.smartlab.babymonitoringapi.utils.JWTUtils;
+import com.smartlab.babymonitoringapi.web.dtos.requests.AuthenticationRequest;
+import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -38,7 +38,7 @@ public class AuthServiceImpl implements IAuthService {
         payload.put("userId", userDetails.getUser().getId());
         payload.put("fullName", fullName);
 
-        String token = JWTUtils.generateToken(jwtSecret, email, payload);
+        String token = JWTUtils.generateToken(email, payload, jwtSecret, 30);
 
         Map<String, String> data = new HashMap<>();
         data.put("accessToken", token);

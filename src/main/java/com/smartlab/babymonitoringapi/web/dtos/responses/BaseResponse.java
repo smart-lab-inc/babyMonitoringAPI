@@ -1,4 +1,4 @@
-package com.smartlab.babymonitoringapi.controllers.dtos.responses;
+package com.smartlab.babymonitoringapi.web.dtos.responses;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -6,8 +6,7 @@ import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-@Builder
-@Getter @Setter
+@Builder @Getter @Setter
 public class BaseResponse {
 
     private HttpStatus status;

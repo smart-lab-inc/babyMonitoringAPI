@@ -1,4 +1,4 @@
-package com.smartlab.babymonitoringapi.controllers.dtos.requests;
+package com.smartlab.babymonitoringapi.web.dtos.requests;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
