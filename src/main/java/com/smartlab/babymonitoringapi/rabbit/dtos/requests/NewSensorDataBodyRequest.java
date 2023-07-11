@@ -13,4 +13,5 @@ public class NewSensorDataBodyRequest {
     private String measurement;
 
     private String timestamp;
+
 }

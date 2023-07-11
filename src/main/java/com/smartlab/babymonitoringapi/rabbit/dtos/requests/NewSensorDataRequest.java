@@ -11,4 +11,5 @@ public class NewSensorDataRequest {
     private String monitorId;
 
     private List<NewSensorDataBodyRequest> body;
+
 }

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ISensorDataService {
     BaseResponse createManyWithSameMonitorId(List<NewSensorDataBodyRequest> createSensorDatumRequests, String monitorId);
+
 }
