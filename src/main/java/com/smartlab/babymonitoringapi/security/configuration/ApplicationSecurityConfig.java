@@ -36,13 +36,13 @@ public class ApplicationSecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request
-                                .requestMatchers("/swagger-ui/**").permitAll()
-                                .requestMatchers("/v3/api-docs/**").permitAll()
-                                .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/monitor/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/user/**").permitAll()
+//                                .requestMatchers("/swagger-ui/**").permitAll()
+//                                .requestMatchers("/v3/api-docs/**").permitAll()
+//                                .requestMatchers("/auth/**").permitAll()
+//                                .requestMatchers(HttpMethod.POST, "/monitor/**").permitAll()
+//                                .requestMatchers(HttpMethod.POST, "/user/**").permitAll()
 
-                                .anyRequest().authenticated())
+                                .anyRequest().permitAll())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .addFilterBefore(jwtTokenVerifierFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception ->

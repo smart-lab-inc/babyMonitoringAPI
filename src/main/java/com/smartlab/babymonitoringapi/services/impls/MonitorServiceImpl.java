@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -30,6 +31,11 @@ public class MonitorServiceImpl implements IMonitorService {
         Monitor savedMonitor = repository.save(monitor);
 
         User user = userService.findOneAndEnsureExistById(request.getUserId());
+
+        if (user.getMonitorIds() == null) {
+            user.setMonitorIds(new ArrayList<>());
+        }
+
         user.getMonitorIds().add(savedMonitor.getId());
         userService.update(user);
 

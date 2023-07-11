@@ -50,18 +50,17 @@ public class MonitorModule {
 
             if (!StringUtils.hasText(token) || !JWTUtils.isValidateToken(token, jwtSecret)) {
                 client.disconnect();
+                return;
             }
 
             Optional<User> optionalUser = userService.getByMonitorId(monitorId);
-            log.info("es vacio: " + optionalUser.isEmpty());
-//
-//            if (!StringUtils.hasText(monitorId) || optionalUser.isEmpty()) {
-//                client.disconnect();
-//            }
+
+            if (!StringUtils.hasText(monitorId) || optionalUser.isEmpty()) {
+                client.disconnect();
+                return;
+            }
 
             client.joinRoom(monitorId);
-
-            log.info("Socket ID[{}]  Connected to socket", client.getSessionId().toString());
         };
 
     }
