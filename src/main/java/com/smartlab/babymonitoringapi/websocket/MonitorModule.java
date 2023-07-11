@@ -52,12 +52,12 @@ public class MonitorModule {
                 client.disconnect();
             }
 
-            List<User> optionalUser = userService.getByMonitorId(monitorId);
-            log.info("es vacio: " + optionalUser.size());
-
-            if (!StringUtils.hasText(monitorId) || optionalUser.isEmpty()) {
-                client.disconnect();
-            }
+            Optional<User> optionalUser = userService.getByMonitorId(monitorId);
+            log.info("es vacio: " + optionalUser.isEmpty());
+//
+//            if (!StringUtils.hasText(monitorId) || optionalUser.isEmpty()) {
+//                client.disconnect();
+//            }
 
             client.joinRoom(monitorId);
 

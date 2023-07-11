@@ -1,9 +1,7 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
-import com.smartlab.babymonitoringapi.persistance.mongo.documents.Monitor;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserRepository;
-import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.IUserService;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
@@ -19,15 +17,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements IUserService {
 
     @Autowired
     private IUserRepository repository;
-
-    @Autowired
-    private IMonitorService monitorService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -73,19 +69,13 @@ public class UserServiceImpl implements IUserService {
                 .build();
     }
 
-    @Override
-    public BaseResponse getByMonitorId(String id) {
-        Monitor monitor = monitorService.findOneAndEnsureExistById(id);
-        User user = monitor.getUser();
+    public Optional<User> getByMonitorId(String id) {
+        return repository.findByMonitorIdsContains(id);
+    }
 
-        return BaseResponse.builder()
-                .data(user)
-                .message("User found")
-                .status(HttpStatus.OK)
-                .success(Boolean.TRUE)
-                .statusCode(HttpStatus.OK.value())
-                .success(Boolean.TRUE)
-                .build();
+    @Override
+    public User update(User user) {
+        return repository.save(user);
     }
 
     @Override

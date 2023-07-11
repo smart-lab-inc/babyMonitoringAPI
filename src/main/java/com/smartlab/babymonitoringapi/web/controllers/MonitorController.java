@@ -1,10 +1,13 @@
 package com.smartlab.babymonitoringapi.web.controllers;
 
 import com.smartlab.babymonitoringapi.services.IMonitorService;
+import com.smartlab.babymonitoringapi.web.dtos.requests.CreateMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,7 +19,7 @@ public class MonitorController {
     private IMonitorService service;
 
     @PostMapping
-    public ResponseEntity<BaseResponse> create() {
-        return service.create().apply();
+    public ResponseEntity<BaseResponse> create(@RequestBody @Valid CreateMonitorRequest request) {
+        return service.create(request).apply();
     }
 }

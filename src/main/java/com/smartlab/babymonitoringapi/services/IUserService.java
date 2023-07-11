@@ -5,6 +5,8 @@ import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 
+import java.util.Optional;
+
 public interface IUserService {
 
     BaseResponse create(CreateUserRequest request);
@@ -13,9 +15,12 @@ public interface IUserService {
 
     BaseResponse update(UpdateUserRequest request, String id);
 
+    User update(User user);
+
     BaseResponse delete(String id);
 
     User findOneAndEnsureExistById(String id);
 
-    BaseResponse getByMonitorId(String id);
+    Optional<User> getByMonitorId(String id);
+
 }

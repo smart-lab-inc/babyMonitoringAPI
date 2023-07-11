@@ -22,7 +22,5 @@ public class Monitor {
     @Value("#{false}")
     private Boolean isActivated;
 
-    @DBRef
-    @Value("#{false}")
-    private User user;
+    private String userId;
 }

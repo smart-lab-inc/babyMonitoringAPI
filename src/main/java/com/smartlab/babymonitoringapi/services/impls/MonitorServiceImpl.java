@@ -1,8 +1,11 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.Monitor;
+import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IMonitorRepository;
 import com.smartlab.babymonitoringapi.services.IMonitorService;
+import com.smartlab.babymonitoringapi.services.IUserService;
+import com.smartlab.babymonitoringapi.web.dtos.requests.CreateMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,13 +19,19 @@ public class MonitorServiceImpl implements IMonitorService {
     @Autowired
     private IMonitorRepository repository;
 
+    @Autowired
+    private IUserService userService;
+
     @Override
-    public BaseResponse create() {
+    public BaseResponse create(CreateMonitorRequest request) {
         String serialNumber = UUID.randomUUID().toString();
 
-        Monitor monitor = Monitor.builder().serialNumber(serialNumber).build();
-
+        Monitor monitor = Monitor.builder().serialNumber(serialNumber).userId(request.getUserId()).build();
         Monitor savedMonitor = repository.save(monitor);
+
+        User user = userService.findOneAndEnsureExistById(request.getUserId());
+        user.getMonitorIds().add(savedMonitor.getId());
+        userService.update(user);
 
         return BaseResponse.builder()
                 .data(savedMonitor)
