@@ -39,7 +39,7 @@ public class UserServiceImpl implements IUserService {
             throw new RuntimeException("Email is already in use");
         }
 
-        User user = repository.save(toUser(request));
+        User user = repository.save(from(request));
 
         return BaseResponse.builder()
                 .data(toUserResponse(user))
@@ -138,7 +138,7 @@ public class UserServiceImpl implements IUserService {
         return repository.save(user);
     }
 
-    private User toUser(CreateUserRequest request) {
+    private User from(CreateUserRequest request) {
         return User.builder()
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
