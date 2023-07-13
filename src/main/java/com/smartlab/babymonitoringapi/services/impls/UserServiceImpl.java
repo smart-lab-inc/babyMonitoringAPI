@@ -2,6 +2,7 @@ package com.smartlab.babymonitoringapi.services.impls;
 
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserRepository;
+import com.smartlab.babymonitoringapi.services.ISNSService;
 import com.smartlab.babymonitoringapi.services.IUserService;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
@@ -26,6 +27,9 @@ public class UserServiceImpl implements IUserService {
     private IUserRepository repository;
 
     @Autowired
+    private ISNSService snsService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private static UserDetailsImpl getUserAuthenticated() {
@@ -40,6 +44,8 @@ public class UserServiceImpl implements IUserService {
         }
 
         User user = repository.save(from(request));
+
+        snsService.subscribeSMS(user.getPhoneNumber());
 
         return BaseResponse.builder()
                 .data(toUserResponse(user))
@@ -69,7 +75,8 @@ public class UserServiceImpl implements IUserService {
                 .build();
     }
 
-    public Optional<User> getByMonitorId(String id) {
+    @Override
+    public Optional<User> findOneByMonitorId(String id) {
         return repository.findByMonitorIdsContains(id);
     }
 
@@ -127,6 +134,12 @@ public class UserServiceImpl implements IUserService {
     public User findOneAndEnsureExistById(String id) {
         return repository.findById(id).orElseThrow(() -> new ObjectNotFoundException("User not found"));
     }
+
+    @Override
+    public User findOneAndEnsureExistByMonitorId(String id) {
+        return findOneByMonitorId(id).orElseThrow(() -> new ObjectNotFoundException("User not found"));
+    }
+
 
     private User update(User user, UpdateUserRequest request) {
         user.setEmail(request.getEmail());
