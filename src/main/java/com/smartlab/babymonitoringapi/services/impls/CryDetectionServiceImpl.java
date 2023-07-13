@@ -26,7 +26,7 @@ public class CryDetectionServiceImpl implements ICryDetectionService {
 
     @Override
     public void processCryDetection(String monitorId, Boolean isMovementDetected, Boolean isSoundDetected) {
-        String message = "Your baby probably is crying, check the camera.";
+        String message = "Tu bebé puede que necesite tu atención. Por favor, revisa la cámara.\nBaby Monitor by SmartLab";
 
         if (isMovementDetected && isSoundDetected) {
             if (cryDetectionMap.containsKey(monitorId)) {
