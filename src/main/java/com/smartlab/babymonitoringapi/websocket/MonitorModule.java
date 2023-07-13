@@ -52,7 +52,7 @@ public class MonitorModule {
                 return;
             }
 
-            Optional<User> optionalUser = userService.getByMonitorId(monitorId);
+            Optional<User> optionalUser = userService.findOneByMonitorId(monitorId);
 
             if (!JWTUtils.isValidateToken(token, jwtSecret) || optionalUser.isEmpty()) {
                 socketService.sendErrorMessageToSocket(client, "Invalid token or monitorId");

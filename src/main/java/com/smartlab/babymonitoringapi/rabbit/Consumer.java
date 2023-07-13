@@ -2,6 +2,7 @@ package com.smartlab.babymonitoringapi.rabbit;
 
 import com.smartlab.babymonitoringapi.rabbit.dtos.requests.NewSensorDataBodyRequest;
 import com.smartlab.babymonitoringapi.rabbit.dtos.requests.NewSensorDataRequest;
+import com.smartlab.babymonitoringapi.services.ICryDetectionService;
 import com.smartlab.babymonitoringapi.services.ISensorDataService;
 import com.smartlab.babymonitoringapi.websocket.services.ISocketService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -9,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class Consumer {
@@ -19,6 +22,9 @@ public class Consumer {
 
     @Autowired
     private ISocketService socketService;
+
+    @Autowired
+    private ICryDetectionService cryDetectionService;
 
     @Value("${websocket.namespace.monitoring}")
     private String monitoringNamespace;
@@ -37,10 +43,29 @@ public class Consumer {
                 true
         );
         saveSensorData(request.getBody(), request.getMonitorId());
+        processCryDetection(request);
     }
 
     private void saveSensorData(List<NewSensorDataBodyRequest> body, String monitorId) {
         sensorDataService.createManyWithSameMonitorId(body, monitorId);
+    }
+
+    private void processCryDetection(NewSensorDataRequest newSensorDataRequest) {
+        Map<String, Boolean> data = new HashMap<>();
+
+        newSensorDataRequest.getBody().forEach(sensorData -> {
+            if (sensorData.getName().equals("movement")) {
+                data.put("movement", sensorData.getValue() > 0);
+            } else if (sensorData.getName().equals("sound")) {
+                data.put("sound", sensorData.getValue() > 0);
+            }
+        });
+
+        cryDetectionService.processCryDetection(
+                newSensorDataRequest.getMonitorId(),
+                data.get("movement"),
+                data.get("sound")
+        );
     }
 
 }
