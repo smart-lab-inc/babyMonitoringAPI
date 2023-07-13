@@ -1,5 +1,8 @@
 package com.smartlab.babymonitoringapi.constants;
 
+import lombok.Getter;
+
+@Getter
 public enum SMSType {
     TRANSACTIONAL("Transactional"),
     PROMOTIONAL("Promotional");
@@ -8,9 +11,5 @@ public enum SMSType {
 
     SMSType(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 }
