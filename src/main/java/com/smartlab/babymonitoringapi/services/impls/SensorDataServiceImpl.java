@@ -6,11 +6,17 @@ import com.smartlab.babymonitoringapi.persistance.mongo.repositories.ISensorData
 import com.smartlab.babymonitoringapi.rabbit.dtos.requests.NewSensorDataBodyRequest;
 import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.ISensorDataService;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.web.dtos.responses.GetSensorDataResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLOutput;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +29,11 @@ public class SensorDataServiceImpl implements ISensorDataService {
 
     @Autowired
     private IMonitorService monitorService;
+
+    private static UserDetailsImpl getUserAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (UserDetailsImpl) authentication.getPrincipal();
+    }
 
     @Override
     public BaseResponse createManyWithSameMonitorId(List<NewSensorDataBodyRequest> createSensorDatumRequests, String monitorId) {
@@ -53,6 +64,75 @@ public class SensorDataServiceImpl implements ISensorDataService {
                 .statusCode(HttpStatus.CREATED.value())
                 .success(true)
                 .build();
+    }
+
+    @Override
+    public BaseResponse get(String monitorId, String sensorName, String startTimestamp, String endTimestamp) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (startTimestamp.equals("")) {
+            startTimestamp = now.minusDays(7).toString();
+        }
+
+        if (endTimestamp.equals("")) {
+            endTimestamp = now.toString();
+        }
+
+        LocalDateTime startDateTime = LocalDateTime.parse(startTimestamp);
+        LocalDateTime endDateTime = LocalDateTime.parse(endTimestamp);
+
+        if (!getUserAuthenticated().getMonitorIds().contains(monitorId)) {
+            throw new ObjectNotFoundException("Monitor not found");
+        }
+
+        List<SensorData> sensorDataList = new ArrayList<>();
+
+        if (sensorName.equals("")) {
+            sensorDataList = repository.findAllByMonitorIdAndTimestampBetween(monitorId, startDateTime, endDateTime);
+        } else if (!sensorName.equals("")) {
+            sensorDataList = repository.findAllByMonitorIdAndNameAndTimestampBetween(monitorId, sensorName,  startDateTime, endDateTime);
+        }
+
+        return BaseResponse.builder()
+                .data(toGetSensorDataResponse(sensorDataList))
+                .message("Sensor data found successfully!")
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .success(true)
+                .build();
+    }
+
+    private GetSensorDataResponse toGetSensorDataResponse(List<SensorData> sensorDataList) {
+        GetSensorDataResponse response = new GetSensorDataResponse();
+
+        List<SensorData> temperatureDataList = new ArrayList<>();
+        List<SensorData> movementDataList = new ArrayList<>();
+        List<SensorData> soundDataList = new ArrayList<>();
+        List<SensorData> humidityDataList = new ArrayList<>();
+
+        sensorDataList.forEach(sensorData -> {
+            switch (sensorData.getName()) {
+                case "temperature":
+                    temperatureDataList.add(sensorData);
+                    break;
+                case "movement":
+                    movementDataList.add(sensorData);
+                    break;
+                case "sound":
+                    soundDataList.add(sensorData);
+                    break;
+                case "humidity":
+                    humidityDataList.add(sensorData);
+                    break;
+            }
+        });
+
+        response.setTemperature(temperatureDataList);
+        response.setMovement(movementDataList);
+        response.setSound(soundDataList);
+        response.setHumidity(humidityDataList);
+
+        return response;
     }
 
     private SensorData toSensorData(NewSensorDataBodyRequest newSensorDataBodyRequest, String monitorId) {
