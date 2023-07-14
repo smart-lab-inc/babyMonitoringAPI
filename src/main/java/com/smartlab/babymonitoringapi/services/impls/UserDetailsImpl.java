@@ -1,11 +1,13 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
+import com.smartlab.babymonitoringapi.persistance.mongo.documents.Monitor;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 @AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
@@ -49,4 +51,7 @@ public class UserDetailsImpl implements UserDetails {
     public User getUser() {
         return user;
     }
+
+    public List<String> getMonitorIds() { return user.getMonitorIds(); }
+
 }
