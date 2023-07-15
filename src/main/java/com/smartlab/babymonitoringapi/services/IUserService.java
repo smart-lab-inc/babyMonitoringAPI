@@ -1,6 +1,7 @@
 package com.smartlab.babymonitoringapi.services;
 
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
+import com.smartlab.babymonitoringapi.web.dtos.requests.AddMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
@@ -21,7 +22,9 @@ public interface IUserService {
 
     User findOneAndEnsureExistById(String id);
 
-    Optional<User> findOneByMonitorId(String id);
+    Optional<User> getByMonitorId(String id);
 
     User findOneAndEnsureExistByMonitorId(String id);
+    
+    BaseResponse addMonitor(AddMonitorRequest request);
 }

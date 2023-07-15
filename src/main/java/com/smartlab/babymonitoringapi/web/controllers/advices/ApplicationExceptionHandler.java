@@ -29,6 +29,7 @@ public class ApplicationExceptionHandler {
                 .message("Operation failed")
                 .success(Boolean.FALSE)
                 .status(HttpStatus.BAD_REQUEST)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
                 .build().apply();
     }
 

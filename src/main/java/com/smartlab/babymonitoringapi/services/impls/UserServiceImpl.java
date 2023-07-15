@@ -1,23 +1,30 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
+import com.smartlab.babymonitoringapi.persistance.mongo.documents.Monitor;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserRepository;
 import com.smartlab.babymonitoringapi.services.ISNSService;
+import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.IUserService;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.UniqueConstraintViolationException;
+import com.smartlab.babymonitoringapi.web.dtos.requests.AddMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.web.dtos.responses.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,6 +38,10 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    @Lazy
+    private IMonitorService monitorService;
 
     private static UserDetailsImpl getUserAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -104,6 +115,47 @@ public class UserServiceImpl implements IUserService {
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
                 .success(Boolean.TRUE)
+                .build();
+    }
+
+    @Override
+    public BaseResponse addMonitor(AddMonitorRequest request) {
+        User userAuthenticated = getUserAuthenticated().getUser();
+
+        if (userAuthenticated.getId().isEmpty()) {
+            throw new AccessDeniedException();
+        }
+
+        Optional<User> userByMonitorId = repository.findByMonitorIdsContains(request.getMonitorId());
+        Monitor monitor = monitorService.findOneAndEnsureExistById(request.getMonitorId());
+
+        if (!userByMonitorId.isPresent() || userAuthenticated.getId().equals(userByMonitorId.get().getId())) {
+            if (monitor.getId().isEmpty()) {
+                throw new ObjectNotFoundException("Monitor not found");
+            }
+
+            if (userAuthenticated.getMonitorIds() == null) {
+                userAuthenticated.setMonitorIds(new ArrayList<>());
+            }
+
+            if (!userAuthenticated.getMonitorIds().contains(request.getMonitorId())) {
+                userAuthenticated.getMonitorIds().add(request.getMonitorId());
+                monitor.setUserId(userAuthenticated.getId());
+                monitorService.update(monitor);
+                repository.save(userAuthenticated);
+            } else {
+                throw new UniqueConstraintViolationException("Monitor is already associated with the current user");
+            }
+        } else {
+            throw new UniqueConstraintViolationException("Monitor is already in use");
+        }
+
+        return BaseResponse.builder()
+                .data("User data saved succesfully!")
+                .message("User data saved successfully!")
+                .status(HttpStatus.CREATED)
+                .statusCode(HttpStatus.CREATED.value())
+                .success(true)
                 .build();
     }
 
