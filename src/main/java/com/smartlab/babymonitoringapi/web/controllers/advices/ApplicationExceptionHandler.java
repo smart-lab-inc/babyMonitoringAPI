@@ -1,6 +1,7 @@
 package com.smartlab.babymonitoringapi.web.controllers.advices;
 
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.IllegalArgumentException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.UniqueConstraintViolationException;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
@@ -60,6 +61,22 @@ public class ApplicationExceptionHandler {
                 .message("Operation failed")
                 .success(Boolean.FALSE)
                 .status(HttpStatus.FORBIDDEN)
+                .build().apply();
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<BaseResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        String message = ex.getMessage();
+
+        errors.put("message", message);
+
+        return BaseResponse.builder()
+                .data(errors)
+                .message("Operation failed")
+                .success(Boolean.FALSE)
+                .status(HttpStatus.BAD_REQUEST)
                 .build().apply();
     }
 }
