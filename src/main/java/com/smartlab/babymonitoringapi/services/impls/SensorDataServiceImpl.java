@@ -6,7 +6,7 @@ import com.smartlab.babymonitoringapi.persistance.mongo.repositories.ISensorData
 import com.smartlab.babymonitoringapi.rabbit.dtos.requests.NewSensorDataBodyRequest;
 import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.ISensorDataService;
-import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.IllegalArgumentException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.web.dtos.responses.GetSensorDataResponse;
@@ -16,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLOutput;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,16 +69,17 @@ public class SensorDataServiceImpl implements ISensorDataService {
     public BaseResponse get(String monitorId, String sensorName, String startTimestamp, String endTimestamp) {
         LocalDateTime now = LocalDateTime.now();
 
-        if (startTimestamp.equals("")) {
+        if (startTimestamp.isEmpty() || endTimestamp.isEmpty()) {
             startTimestamp = now.minusDays(7).toString();
-        }
-
-        if (endTimestamp.equals("")) {
             endTimestamp = now.toString();
         }
 
         LocalDateTime startDateTime = LocalDateTime.parse(startTimestamp);
         LocalDateTime endDateTime = LocalDateTime.parse(endTimestamp);
+
+        if (startDateTime.isAfter(endDateTime)) {
+            throw new IllegalArgumentException("Start timestamp must be before end timestamp");
+        }
 
         if (!getUserAuthenticated().getMonitorIds().contains(monitorId)) {
             throw new ObjectNotFoundException("Monitor not found");
@@ -87,9 +87,9 @@ public class SensorDataServiceImpl implements ISensorDataService {
 
         List<SensorData> sensorDataList = new ArrayList<>();
 
-        if (sensorName.equals("")) {
+        if (sensorName.isEmpty()) {
             sensorDataList = repository.findAllByMonitorIdAndTimestampBetween(monitorId, startDateTime, endDateTime);
-        } else if (!sensorName.equals("")) {
+        } else {
             sensorDataList = repository.findAllByMonitorIdAndNameAndTimestampBetween(monitorId, sensorName,  startDateTime, endDateTime);
         }
 
