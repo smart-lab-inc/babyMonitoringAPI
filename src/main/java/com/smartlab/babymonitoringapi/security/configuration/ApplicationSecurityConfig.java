@@ -4,6 +4,7 @@ import com.smartlab.babymonitoringapi.security.jwt.AuthEntrypointJWT;
 import com.smartlab.babymonitoringapi.security.jwt.JWTTokenVerifierFilter;
 import com.smartlab.babymonitoringapi.services.impls.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,6 +33,9 @@ public class ApplicationSecurityConfig {
 
     @Autowired
     private AuthEntrypointJWT authEntrypointJWT;
+
+    @Value("${cors.allowed.origins}")
+    private String allowedOrigins;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -86,7 +90,10 @@ public class ApplicationSecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedMethods("*");
+                registry.addMapping("/**")
+                        .allowedOrigins(allowedOrigins.split(","))
+                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedHeaders("*");
             }
         };
     }
