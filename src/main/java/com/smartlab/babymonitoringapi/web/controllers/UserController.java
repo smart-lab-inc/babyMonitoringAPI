@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @PutMapping("monitor")
-    public ResponseEntity<BaseResponse> addMonitor(@RequestBody @Valid UpdateUserMonitorRequest request) {
+    public ResponseEntity<BaseResponse> update(@RequestBody @Valid UpdateUserMonitorRequest request) {
       return service.update(request).apply();
     }
 
