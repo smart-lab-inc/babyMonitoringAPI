@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface IMonitorRepository extends MongoRepository<Monitor, String> {
 
     Optional<Monitor> findOneById(String id);
+
+    Optional<Monitor> findOneBySerialNumber(String serialNumber);
 }

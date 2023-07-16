@@ -10,4 +10,6 @@ public interface IMonitorService {
     BaseResponse create(CreateMonitorRequest request);
 
     Monitor update(Monitor monitor);
+
+    Monitor findOneByAndEnsureExitsBySerialNumber(String serialNumber);
 }

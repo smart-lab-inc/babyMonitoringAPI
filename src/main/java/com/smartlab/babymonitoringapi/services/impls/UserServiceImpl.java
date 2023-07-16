@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -126,10 +125,10 @@ public class UserServiceImpl implements IUserService {
             throw new AccessDeniedException();
         }
 
-        Optional<User> userByMonitorId = repository.findByMonitorIdsContains(request.getMonitorId());
-        Monitor monitor = monitorService.findOneAndEnsureExistById(request.getMonitorId());
+        Monitor monitor = monitorService.findOneByAndEnsureExitsBySerialNumber(request.getMonitorSerialNumber());
 
-        if (!userByMonitorId.isPresent() || userAuthenticated.getId().equals(userByMonitorId.get().getId())) {
+
+        if (monitor.getUserId() == null || userAuthenticated.getId().equals(monitor.getUserId())) {
             if (monitor.getId().isEmpty()) {
                 throw new ObjectNotFoundException("Monitor not found");
             }
@@ -138,8 +137,8 @@ public class UserServiceImpl implements IUserService {
                 userAuthenticated.setMonitorIds(new ArrayList<>());
             }
 
-            if (!userAuthenticated.getMonitorIds().contains(request.getMonitorId())) {
-                userAuthenticated.getMonitorIds().add(request.getMonitorId());
+            if (!userAuthenticated.getMonitorIds().contains(request.getMonitorSerialNumber())) {
+                userAuthenticated.getMonitorIds().add(request.getMonitorSerialNumber());
                 monitor.setUserId(userAuthenticated.getId());
                 monitorService.update(monitor);
                 repository.save(userAuthenticated);
