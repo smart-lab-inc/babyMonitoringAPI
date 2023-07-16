@@ -10,6 +10,7 @@ import com.smartlab.babymonitoringapi.web.controllers.exceptions.IllegalArgument
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.web.dtos.responses.GetSensorDataResponse;
+import com.smartlab.babymonitoringapi.web.dtos.responses.GetStatisticsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -17,8 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class SensorDataServiceImpl implements ISensorDataService {
@@ -67,6 +67,205 @@ public class SensorDataServiceImpl implements ISensorDataService {
 
     @Override
     public BaseResponse get(String monitorId, String sensorName, String startTimestamp, String endTimestamp) {
+        List<LocalDateTime> dateTimes = validateDateTimes(startTimestamp, endTimestamp);
+
+        LocalDateTime startDateTime = dateTimes.get(0);
+        LocalDateTime endDateTime = dateTimes.get(1);
+
+        if (!getUserAuthenticated().getMonitorIds().contains(monitorId)) {
+            throw new ObjectNotFoundException("Monitor not found");
+        }
+
+        List<SensorData> sensorDataList = getSensorDataList(monitorId, sensorName, startDateTime, endDateTime);
+
+        return BaseResponse.builder()
+                .data(toGetSensorDataResponse(sensorDataList))
+                .message("Sensor data found successfully!")
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .success(true)
+                .build();
+    }
+
+    @Override
+    public BaseResponse getStatistics(String monitorId, String sensorName, String startTimestamp, String endTimestamp) {
+        List<LocalDateTime> dateTimes = validateDateTimes(startTimestamp, endTimestamp);
+
+        LocalDateTime startDateTime = dateTimes.get(0);
+        LocalDateTime endDateTime = dateTimes.get(1);
+
+        if (!getUserAuthenticated().getMonitorIds().contains(monitorId)) {
+            throw new ObjectNotFoundException("Monitor not found");
+        }
+
+        List<SensorData> sensorDataList = getSensorDataList(monitorId, sensorName, startDateTime, endDateTime);
+
+        GetSensorDataResponse dataList = toGetSensorDataResponse(sensorDataList);
+        Map<String, List<Float>> temperatureStatistics = new HashMap<>();
+        Map<String, List<Float>> movementStatistics = new HashMap<>();
+        Map<String, List<Float>> soundStatistics = new HashMap<>();
+        Map<String, List<Float>> humidityStatistics = new HashMap<>();
+
+        if (dataList.getTemperature().size() != 0) {
+            temperatureStatistics = calculateStatistics(dataList.getTemperature());
+        }
+        if (dataList.getMovement().size() != 0) {
+            movementStatistics = calculateStatistics(dataList.getMovement());
+        }
+        if (dataList.getSound().size() != 0) {
+            soundStatistics = calculateStatistics(dataList.getSound());
+        }
+        if (dataList.getHumidity().size() != 0) {
+            humidityStatistics = calculateStatistics(dataList.getHumidity());
+        }
+
+        return BaseResponse.builder()
+                .data(toGetStatisticsResponse(temperatureStatistics,
+                        movementStatistics,
+                        soundStatistics,
+                        humidityStatistics))
+                .message("Sensor data statistics found successfully!")
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .success(true)
+                .build();
+    }
+
+    private Map<String, List<Float>> calculateStatistics(List<SensorData> sensorDataList) {
+
+        List<Float> mean = calculateMean(sensorDataList);
+        List<Float> median = calculateMedian(sensorDataList);
+        List<Float> mode = calculateMode(sensorDataList);
+        List<Float> standardDeviation = calculateStandardDeviation(sensorDataList);
+        List<Float> variance = calculateVariance(sensorDataList);
+        List<Float> range = calculateRange(sensorDataList);
+        List<Float> min = calculateMin(sensorDataList);
+        List<Float> max = calculateMax(sensorDataList);
+
+        return Map.of( "mean", mean, "median", median, "mode", mode, "standardDeviation", standardDeviation, "variance", variance, "range", range, "min", min, "max", max);
+    }
+
+    private List<Float> calculateMax(List<SensorData> sensorDataList) {
+        return Collections.singletonList(sensorDataList.stream().map(SensorData::getValue).max(Float::compareTo).orElse(0f));
+    }
+
+    private List<Float> calculateMin(List<SensorData> sensorDataList) {
+        return Collections.singletonList(sensorDataList.stream().map(SensorData::getValue).min(Float::compareTo).orElse(0f));
+    }
+
+    private List<Float> calculateRange(List<SensorData> sensorDataList) {
+        return List.of(sensorDataList.stream().map(SensorData::getValue).max(Float::compareTo).orElse(0f) - sensorDataList.stream().map(SensorData::getValue).min(Float::compareTo).orElse(0f));
+    }
+
+    private List<Float> calculateVariance(List<SensorData> sensorDataList) {
+        int sum = 0;
+        double mean;
+
+        for (SensorData sensorData : sensorDataList) {
+            sum += sensorData.getValue();
+        }
+
+        mean = (double) sum / sensorDataList.size();
+
+        double squaredDiffSum = 0;
+
+        for (SensorData sensorData : sensorDataList) {
+            double diff = sensorData.getValue() - mean;
+            squaredDiffSum += Math.pow(diff, 2);
+        }
+
+        double variance = squaredDiffSum / sensorDataList.size();
+
+        return List.of((float) variance);
+    }
+
+    private List<Float> calculateStandardDeviation(List<SensorData> sensorDataList) {
+        int sum = 0;
+        double mean;
+
+        for (SensorData sensorData : sensorDataList) {
+            sum += sensorData.getValue();
+        }
+
+        mean = (double) sum / sensorDataList.size();
+
+        double squaredDiffSum = 0;
+
+        for (SensorData sensorData : sensorDataList) {
+            double diff = sensorData.getValue() - mean;
+            squaredDiffSum += Math.pow(diff, 2);
+        }
+
+        double variance = squaredDiffSum / sensorDataList.size();
+
+        double standardDeviation = Math.sqrt(variance);
+
+        return List.of((float) standardDeviation);
+    }
+
+    private List<Float> calculateMode(List<SensorData> sensorDataList) {
+        Map<Float, Integer> map = new HashMap<>();
+
+        for (SensorData sensorData : sensorDataList) {
+            if (map.containsKey(sensorData.getValue())) {
+                map.put(sensorData.getValue(), map.get(sensorData.getValue()) + 1);
+            } else {
+                map.put(sensorData.getValue(), 1);
+            }
+        }
+
+        float max = 0;
+        float mode = 0;
+
+        for (Map.Entry<Float, Integer> entry : map.entrySet()) {
+            if (entry.getValue() > max) {
+                max = entry.getValue();
+                mode = entry.getKey();
+            }
+        }
+
+        return List.of(mode);
+    }
+
+    private List<Float> calculateMedian(List<SensorData> sensorDataList) {
+        Float median = 0f;
+
+        int index = sensorDataList.size() / 2;
+
+        if (sensorDataList.size() % 2 == 0) {
+            median = (sensorDataList.get(index - 1).getValue() + sensorDataList.get(index).getValue()) / 2;
+        } else {
+            median = sensorDataList.get(index).getValue();
+        }
+
+        return List.of(median);
+    }
+
+    private List<Float> calculateMean(List<SensorData> sensorDataList) {
+        Float sum = 0f;
+        Float count = 0f;
+
+        for (SensorData sensorData : sensorDataList) {
+            sum += sensorData.getValue();
+            count++;
+        }
+
+        return List.of((sum / count));
+    }
+
+    private List<SensorData> getSensorDataList(String monitorId, String sensorName, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        List<SensorData> sensorDataList = new ArrayList<>();
+
+        if (sensorName.isEmpty()) {
+            sensorDataList = repository.findAllByMonitorIdAndTimestampBetween(monitorId, startDateTime, endDateTime);
+        } else {
+            sensorDataList = repository.findAllByMonitorIdAndNameAndTimestampBetween(monitorId, sensorName,  startDateTime, endDateTime);
+        }
+
+        return sensorDataList;
+    }
+
+    private List<LocalDateTime> validateDateTimes(String startTimestamp, String endTimestamp) {
         LocalDateTime now = LocalDateTime.now();
 
         if (startTimestamp.isEmpty() || endTimestamp.isEmpty()) {
@@ -81,25 +280,21 @@ public class SensorDataServiceImpl implements ISensorDataService {
             throw new IllegalArgumentException("Start timestamp must be before end timestamp");
         }
 
-        if (!getUserAuthenticated().getMonitorIds().contains(monitorId)) {
-            throw new ObjectNotFoundException("Monitor not found");
-        }
+        return List.of(startDateTime, endDateTime);
+    }
 
-        List<SensorData> sensorDataList = new ArrayList<>();
+    private GetStatisticsResponse toGetStatisticsResponse(Map<String, List<Float>> temperatureStatistics,
+                                                          Map<String, List<Float>> movementStatistics,
+                                                          Map<String, List<Float>> soundStatistics,
+                                                          Map<String, List<Float>> humidityStatistics) {
+        GetStatisticsResponse response = new GetStatisticsResponse();
 
-        if (sensorName.isEmpty()) {
-            sensorDataList = repository.findAllByMonitorIdAndTimestampBetween(monitorId, startDateTime, endDateTime);
-        } else {
-            sensorDataList = repository.findAllByMonitorIdAndNameAndTimestampBetween(monitorId, sensorName,  startDateTime, endDateTime);
-        }
+        response.setTemperature(temperatureStatistics);
+        response.setMovement(movementStatistics);
+        response.setSound(soundStatistics);
+        response.setHumidity(humidityStatistics);
 
-        return BaseResponse.builder()
-                .data(toGetSensorDataResponse(sensorDataList))
-                .message("Sensor data found successfully!")
-                .status(HttpStatus.OK)
-                .statusCode(HttpStatus.OK.value())
-                .success(true)
-                .build();
+        return response;
     }
 
     private GetSensorDataResponse toGetSensorDataResponse(List<SensorData> sensorDataList) {

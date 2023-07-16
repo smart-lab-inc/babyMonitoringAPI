@@ -11,4 +11,5 @@ public interface ISensorDataService {
 
     BaseResponse get(String monitorId, String sensorName, String startTimestamp, String endTimestamp);
 
+    BaseResponse getStatistics(String monitorId, String sensorName, String startTimestamp, String endTimestamp);
 }

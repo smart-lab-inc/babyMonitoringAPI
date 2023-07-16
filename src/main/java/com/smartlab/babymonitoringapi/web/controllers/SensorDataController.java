@@ -19,5 +19,13 @@ public class SensorDataController {
                                             @RequestParam (defaultValue = "") String endTime) {
         return service.get(monitorId, sensorName, startTime, endTime).apply();
     }
+
+    @GetMapping("statistics/monitor/{monitorId}")
+    public ResponseEntity<BaseResponse> getStatistics(@PathVariable String monitorId,
+                                                      @RequestParam(defaultValue = "") String sensorName,
+                                                      @RequestParam (defaultValue = "") String startTime,
+                                                      @RequestParam (defaultValue = "") String endTime) {
+        return service.getStatistics(monitorId, sensorName, startTime, endTime).apply();
+    }
 }
 
