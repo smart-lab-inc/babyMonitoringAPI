@@ -101,10 +101,10 @@ public class SensorDataServiceImpl implements ISensorDataService {
         List<SensorData> sensorDataList = getSensorDataList(monitorId, sensorName, startDateTime, endDateTime);
 
         GetSensorDataResponse dataList = toGetSensorDataResponse(sensorDataList);
-        Map<String, List<Float>> temperatureStatistics = new HashMap<>();
-        Map<String, List<Float>> movementStatistics = new HashMap<>();
-        Map<String, List<Float>> soundStatistics = new HashMap<>();
-        Map<String, List<Float>> humidityStatistics = new HashMap<>();
+        Map<String, Float> temperatureStatistics = new HashMap<>();
+        Map<String, Float> movementStatistics = new HashMap<>();
+        Map<String, Float> soundStatistics = new HashMap<>();
+        Map<String, Float> humidityStatistics = new HashMap<>();
 
         if (dataList.getTemperature().size() != 0) {
             temperatureStatistics = calculateStatistics(dataList.getTemperature());
@@ -131,33 +131,55 @@ public class SensorDataServiceImpl implements ISensorDataService {
                 .build();
     }
 
-    private Map<String, List<Float>> calculateStatistics(List<SensorData> sensorDataList) {
+    private Map<String, Float> calculateStatistics(List<SensorData> sensorDataList) {
 
-        List<Float> mean = calculateMean(sensorDataList);
-        List<Float> median = calculateMedian(sensorDataList);
-        List<Float> mode = calculateMode(sensorDataList);
-        List<Float> standardDeviation = calculateStandardDeviation(sensorDataList);
-        List<Float> variance = calculateVariance(sensorDataList);
-        List<Float> range = calculateRange(sensorDataList);
-        List<Float> min = calculateMin(sensorDataList);
-        List<Float> max = calculateMax(sensorDataList);
+        Float mean = calculateMean(sensorDataList);
+        Float median = calculateMedian(sensorDataList);
+        Float mode = calculateMode(sensorDataList);
+        Float standardDeviation = calculateStandardDeviation(sensorDataList);
+        Float variance = calculateVariance(sensorDataList);
+        Float range = calculateRange(sensorDataList);
+        Float min = calculateMin(sensorDataList);
+        Float max = calculateMax(sensorDataList);
 
         return Map.of( "mean", mean, "median", median, "mode", mode, "standardDeviation", standardDeviation, "variance", variance, "range", range, "min", min, "max", max);
     }
 
-    private List<Float> calculateMax(List<SensorData> sensorDataList) {
-        return Collections.singletonList(sensorDataList.stream().map(SensorData::getValue).max(Float::compareTo).orElse(0f));
+    private Float calculateMax(List<SensorData> sensorDataList) {
+        return sensorDataList.stream().map(SensorData::getValue).max(Float::compareTo).orElse(0f);
     }
 
-    private List<Float> calculateMin(List<SensorData> sensorDataList) {
-        return Collections.singletonList(sensorDataList.stream().map(SensorData::getValue).min(Float::compareTo).orElse(0f));
+    private Float calculateMin(List<SensorData> sensorDataList) {
+        return sensorDataList.stream().map(SensorData::getValue).min(Float::compareTo).orElse(0f);
     }
 
-    private List<Float> calculateRange(List<SensorData> sensorDataList) {
-        return List.of(sensorDataList.stream().map(SensorData::getValue).max(Float::compareTo).orElse(0f) - sensorDataList.stream().map(SensorData::getValue).min(Float::compareTo).orElse(0f));
+    private Float calculateRange(List<SensorData> sensorDataList) {
+        return sensorDataList.stream().map(SensorData::getValue).max(Float::compareTo).orElse(0f) - sensorDataList.stream().map(SensorData::getValue).min(Float::compareTo).orElse(0f);
     }
 
-    private List<Float> calculateVariance(List<SensorData> sensorDataList) {
+    private Float calculateVariance(List<SensorData> sensorDataList) {
+        int sum = 0;
+        double mean;
+
+        for (SensorData sensorData : sensorDataList) {
+            sum += sensorData.getValue();
+        }
+
+        mean = (double) sum / sensorDataList.size();
+
+        double squaredDiffSum = 0;
+
+        for (SensorData sensorData : sensorDataList) {
+            double diff = sensorData.getValue() - mean;
+            squaredDiffSum += Math.pow(diff, 2);
+        }
+
+        float variance = (float) (squaredDiffSum / sensorDataList.size());
+
+        return variance;
+    }
+
+    private Float calculateStandardDeviation(List<SensorData> sensorDataList) {
         int sum = 0;
         double mean;
 
@@ -176,34 +198,12 @@ public class SensorDataServiceImpl implements ISensorDataService {
 
         double variance = squaredDiffSum / sensorDataList.size();
 
-        return List.of((float) variance);
+        float standardDeviation = (float) Math.sqrt(variance);
+
+        return standardDeviation;
     }
 
-    private List<Float> calculateStandardDeviation(List<SensorData> sensorDataList) {
-        int sum = 0;
-        double mean;
-
-        for (SensorData sensorData : sensorDataList) {
-            sum += sensorData.getValue();
-        }
-
-        mean = (double) sum / sensorDataList.size();
-
-        double squaredDiffSum = 0;
-
-        for (SensorData sensorData : sensorDataList) {
-            double diff = sensorData.getValue() - mean;
-            squaredDiffSum += Math.pow(diff, 2);
-        }
-
-        double variance = squaredDiffSum / sensorDataList.size();
-
-        double standardDeviation = Math.sqrt(variance);
-
-        return List.of((float) standardDeviation);
-    }
-
-    private List<Float> calculateMode(List<SensorData> sensorDataList) {
+    private Float calculateMode(List<SensorData> sensorDataList) {
         Map<Float, Integer> map = new HashMap<>();
 
         for (SensorData sensorData : sensorDataList) {
@@ -224,10 +224,10 @@ public class SensorDataServiceImpl implements ISensorDataService {
             }
         }
 
-        return List.of(mode);
+        return mode;
     }
 
-    private List<Float> calculateMedian(List<SensorData> sensorDataList) {
+    private Float calculateMedian(List<SensorData> sensorDataList) {
         Float median = 0f;
 
         int index = sensorDataList.size() / 2;
@@ -238,10 +238,10 @@ public class SensorDataServiceImpl implements ISensorDataService {
             median = sensorDataList.get(index).getValue();
         }
 
-        return List.of(median);
+        return median;
     }
 
-    private List<Float> calculateMean(List<SensorData> sensorDataList) {
+    private Float calculateMean(List<SensorData> sensorDataList) {
         Float sum = 0f;
         Float count = 0f;
 
@@ -250,7 +250,9 @@ public class SensorDataServiceImpl implements ISensorDataService {
             count++;
         }
 
-        return List.of((sum / count));
+        float mean = (float) (sum / count);
+
+        return mean;
     }
 
     private List<SensorData> getSensorDataList(String monitorId, String sensorName, LocalDateTime startDateTime, LocalDateTime endDateTime) {
@@ -283,10 +285,10 @@ public class SensorDataServiceImpl implements ISensorDataService {
         return List.of(startDateTime, endDateTime);
     }
 
-    private GetStatisticsResponse toGetStatisticsResponse(Map<String, List<Float>> temperatureStatistics,
-                                                          Map<String, List<Float>> movementStatistics,
-                                                          Map<String, List<Float>> soundStatistics,
-                                                          Map<String, List<Float>> humidityStatistics) {
+    private GetStatisticsResponse toGetStatisticsResponse(Map<String, Float> temperatureStatistics,
+                                                          Map<String, Float> movementStatistics,
+                                                          Map<String, Float> soundStatistics,
+                                                          Map<String, Float> humidityStatistics) {
         GetStatisticsResponse response = new GetStatisticsResponse();
 
         response.setTemperature(temperatureStatistics);
