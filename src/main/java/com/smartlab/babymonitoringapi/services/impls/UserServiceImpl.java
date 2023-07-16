@@ -150,9 +150,9 @@ public class UserServiceImpl implements IUserService {
         return BaseResponse.builder()
                 .data("User data saved succesfully!")
                 .message("User data saved successfully!")
-                .status(HttpStatus.CREATED)
-                .statusCode(HttpStatus.CREATED.value())
-                .success(true)
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .success(Boolean.TRUE)
                 .build();
     }
 
