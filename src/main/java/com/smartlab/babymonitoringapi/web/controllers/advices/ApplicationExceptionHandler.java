@@ -46,6 +46,7 @@ public class ApplicationExceptionHandler {
                 .message("Operation failed")
                 .success(Boolean.FALSE)
                 .status(HttpStatus.NOT_FOUND)
+                .statusCode(HttpStatus.NOT_FOUND.value())
                 .build().apply();
     }
 
