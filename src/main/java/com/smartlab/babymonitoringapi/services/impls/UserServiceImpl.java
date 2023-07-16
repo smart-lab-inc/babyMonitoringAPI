@@ -9,7 +9,7 @@ import com.smartlab.babymonitoringapi.services.IUserService;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.UniqueConstraintViolationException;
-import com.smartlab.babymonitoringapi.web.dtos.requests.AddMonitorRequest;
+import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
@@ -118,21 +118,20 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public BaseResponse addMonitor(AddMonitorRequest request) {
+    public BaseResponse update(UpdateUserMonitorRequest request) {
         User userAuthenticated = getUserAuthenticated().getUser();
 
         if (userAuthenticated.getId().isEmpty()) {
             throw new AccessDeniedException();
         }
 
-        Monitor monitor = monitorService.findOneByAndEnsureExitsBySerialNumber(request.getMonitorSerialNumber());
+        Monitor monitor = monitorService.findOneAndEnsureExitsBySerialNumber(request.getMonitorSerialNumber());
 
+        if (monitor.getIsActivated() == null) {
+            throw new ObjectNotFoundException("Monitor not found");
+        }
 
-        if (monitor.getUserId() == null || userAuthenticated.getId().equals(monitor.getUserId())) {
-            if (monitor.getId().isEmpty()) {
-                throw new ObjectNotFoundException("Monitor not found");
-            }
-
+        if (!monitor.getIsActivated()) {
             if (userAuthenticated.getMonitorIds() == null) {
                 userAuthenticated.setMonitorIds(new ArrayList<>());
             }
@@ -140,10 +139,9 @@ public class UserServiceImpl implements IUserService {
             if (!userAuthenticated.getMonitorIds().contains(request.getMonitorSerialNumber())) {
                 userAuthenticated.getMonitorIds().add(request.getMonitorSerialNumber());
                 monitor.setUserId(userAuthenticated.getId());
+                monitor.setIsActivated(true);
                 monitorService.update(monitor);
                 repository.save(userAuthenticated);
-            } else {
-                throw new UniqueConstraintViolationException("Monitor is already associated with the current user");
             }
         } else {
             throw new UniqueConstraintViolationException("Monitor is already in use");
