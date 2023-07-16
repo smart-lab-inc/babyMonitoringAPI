@@ -11,5 +11,5 @@ public interface IMonitorService {
 
     Monitor update(Monitor monitor);
 
-    Monitor findOneAndEnsureExitsBySerialNumber(String serialNumber);
+    Monitor findOneAndEnsureExistBySerialNumber(String serialNumber);
 }

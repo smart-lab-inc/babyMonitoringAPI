@@ -60,7 +60,7 @@ public class MonitorServiceImpl implements IMonitorService {
     }
 
     @Override
-    public Monitor findOneAndEnsureExitsBySerialNumber(String serialNumber) {
+    public Monitor findOneAndEnsureExistBySerialNumber(String serialNumber) {
         return repository.findOneBySerialNumber(serialNumber).orElseThrow(() -> new ObjectNotFoundException("Monitor not found"));
     }
 }

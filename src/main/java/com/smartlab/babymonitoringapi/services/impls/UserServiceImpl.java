@@ -125,7 +125,7 @@ public class UserServiceImpl implements IUserService {
             throw new AccessDeniedException();
         }
 
-        Monitor monitor = monitorService.findOneAndEnsureExitsBySerialNumber(request.getMonitorSerialNumber());
+        Monitor monitor = monitorService.findOneAndEnsureExistBySerialNumber(request.getMonitorSerialNumber());
 
         if (monitor.getIsActivated() == null) {
             throw new ObjectNotFoundException("Monitor not found");
