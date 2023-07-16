@@ -1,6 +1,7 @@
 package com.smartlab.babymonitoringapi.web.controllers;
 
 import com.smartlab.babymonitoringapi.services.IUserService;
+import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
@@ -29,6 +30,11 @@ public class UserController {
     @PutMapping("{id}")
     public ResponseEntity<BaseResponse> update(@PathVariable String id, @RequestBody @Valid UpdateUserRequest request) {
         return service.update(request, id).apply();
+    }
+
+    @PutMapping("monitor")
+    public ResponseEntity<BaseResponse> update(@RequestBody @Valid UpdateUserMonitorRequest request) {
+      return service.update(request).apply();
     }
 
     @DeleteMapping("{id}")

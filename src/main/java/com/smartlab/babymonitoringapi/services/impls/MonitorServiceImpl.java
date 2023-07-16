@@ -5,6 +5,7 @@ import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IMonitorRepository;
 import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.IUserService;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.dtos.requests.CreateMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +57,10 @@ public class MonitorServiceImpl implements IMonitorService {
     @Override
     public Monitor update(Monitor monitor) {
         return repository.save(monitor);
+    }
+
+    @Override
+    public Monitor findOneAndEnsureExistBySerialNumber(String serialNumber) {
+        return repository.findOneBySerialNumber(serialNumber).orElseThrow(() -> new ObjectNotFoundException("Monitor not found"));
     }
 }

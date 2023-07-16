@@ -1,22 +1,28 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
+import com.smartlab.babymonitoringapi.persistance.mongo.documents.Monitor;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserRepository;
 import com.smartlab.babymonitoringapi.services.ISNSService;
+import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.IUserService;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.UniqueConstraintViolationException;
+import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.web.dtos.responses.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -31,6 +37,10 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    @Lazy
+    private IMonitorService monitorService;
 
     private static UserDetailsImpl getUserAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -104,6 +114,45 @@ public class UserServiceImpl implements IUserService {
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
                 .success(Boolean.TRUE)
+                .build();
+    }
+
+    @Override
+    public BaseResponse update(UpdateUserMonitorRequest request) {
+        User userAuthenticated = getUserAuthenticated().getUser();
+
+        if (userAuthenticated.getId().isEmpty()) {
+            throw new AccessDeniedException();
+        }
+
+        Monitor monitor = monitorService.findOneAndEnsureExistBySerialNumber(request.getMonitorSerialNumber());
+
+        if (monitor.getIsActivated() == null) {
+            throw new ObjectNotFoundException("Monitor not found");
+        }
+
+        if (!monitor.getIsActivated()) {
+            if (userAuthenticated.getMonitorIds() == null) {
+                userAuthenticated.setMonitorIds(new ArrayList<>());
+            }
+
+            if (!userAuthenticated.getMonitorIds().contains(request.getMonitorSerialNumber())) {
+                userAuthenticated.getMonitorIds().add(request.getMonitorSerialNumber());
+                monitor.setUserId(userAuthenticated.getId());
+                monitor.setIsActivated(true);
+                monitorService.update(monitor);
+                repository.save(userAuthenticated);
+            }
+        } else {
+            throw new UniqueConstraintViolationException("Monitor is already in use");
+        }
+
+        return BaseResponse.builder()
+                .data("User data saved succesfully!")
+                .message("User data saved successfully!")
+                .status(HttpStatus.CREATED)
+                .statusCode(HttpStatus.CREATED.value())
+                .success(true)
                 .build();
     }
 
