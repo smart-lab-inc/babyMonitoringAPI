@@ -22,7 +22,7 @@ public interface IUserService {
 
     User findOneAndEnsureExistById(String id);
 
-    Optional<User> getByMonitorId(String id);
+    Optional<User> findOneByMonitorId(String id);
 
     User findOneAndEnsureExistByMonitorId(String id);
     
