@@ -27,7 +27,7 @@ public class AuthController {
 
     // support "Content-Type 'application/x-www-form-urlencoded;charset=UTF-8'
     @PostMapping(value = "validate-token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<BaseResponse> verifyToken(@RequestBody ValidateTokenRequest request) {
+    public ResponseEntity<BaseResponse> verifyToken(ValidateTokenRequest request) {
         return service.validateToken(request).apply();
     }
 }
