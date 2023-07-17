@@ -1,12 +1,13 @@
 package com.smartlab.babymonitoringapi.services.impls;
 
 import com.smartlab.babymonitoringapi.services.IAuthService;
+import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.utils.JWTUtils;
-import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.dtos.requests.AuthenticationRequest;
-import com.smartlab.babymonitoringapi.web.dtos.requests.ValidateTokenRequest;
+import com.smartlab.babymonitoringapi.web.dtos.requests.ValidateStreamKeyRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +25,9 @@ public class AuthServiceImpl implements IAuthService {
 
     @Value("${smartlab.app.jwtSecret}")
     private String jwtSecret;
+
+    @Autowired
+    private IMonitorService monitorService;
 
     @Override
     public BaseResponse authenticate(AuthenticationRequest request) {
@@ -55,12 +59,8 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public BaseResponse validateToken(ValidateTokenRequest request) {
-        Boolean isTokenValid = JWTUtils.isValidateToken(request.getToken(), jwtSecret);
-
-        if (!isTokenValid) {
-            throw new AccessDeniedException();
-        }
+    public BaseResponse validateStreamKey(ValidateStreamKeyRequest request) {
+        monitorService.findOneAndEnsureExistBySerialNumber(request.getKey());
 
         return BaseResponse.builder()
                 .message("Success")
