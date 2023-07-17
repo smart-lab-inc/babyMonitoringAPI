@@ -62,8 +62,6 @@ public class AuthServiceImpl implements IAuthService {
     public BaseResponse validateStreamKey(ValidateStreamKeyRequest request) {
         monitorService.findOneAndEnsureExistBySerialNumber(request.getKey());
 
-        System.out.println("token: " + request.getKey());
-
         return BaseResponse.builder()
                 .message("Success")
                 .status(HttpStatus.OK)
