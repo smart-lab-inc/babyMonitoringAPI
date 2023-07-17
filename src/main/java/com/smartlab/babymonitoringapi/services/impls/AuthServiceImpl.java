@@ -56,7 +56,6 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     public BaseResponse validateToken(ValidateTokenRequest request) {
-        System.out.println(request.getToken());
         Boolean isTokenValid = JWTUtils.isValidateToken(request.getToken(), jwtSecret);
 
         if (!isTokenValid) {
