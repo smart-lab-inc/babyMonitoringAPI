@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ValidateTokenRequest {
-    private String token;
+public class ValidateStreamKeyRequest {
+    private String key;
 }
