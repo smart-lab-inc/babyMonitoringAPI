@@ -1,10 +1,10 @@
 package com.smartlab.babymonitoringapi.web.dtos.requests;
 
-import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-public class VerifyTokenRequest {
-    @NotBlank
+@AllArgsConstructor
+public class ValidateTokenRequest {
     private String token;
 }

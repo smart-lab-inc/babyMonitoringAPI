@@ -2,10 +2,11 @@ package com.smartlab.babymonitoringapi.web.controllers;
 
 import com.smartlab.babymonitoringapi.services.IAuthService;
 import com.smartlab.babymonitoringapi.web.dtos.requests.AuthenticationRequest;
-import com.smartlab.babymonitoringapi.web.dtos.requests.VerifyTokenRequest;
+import com.smartlab.babymonitoringapi.web.dtos.requests.ValidateTokenRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,8 +25,9 @@ public class AuthController {
         return service.authenticate(request).apply();
     }
 
-    @PostMapping("validate-token")
-    public ResponseEntity<BaseResponse> verifyToken(@RequestBody @Valid VerifyTokenRequest request) {
+    // support "Content-Type 'application/x-www-form-urlencoded;charset=UTF-8'
+    @PostMapping(value = "validate-token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ResponseEntity<BaseResponse> verifyToken(ValidateTokenRequest request) {
         return service.validateToken(request).apply();
     }
 }
