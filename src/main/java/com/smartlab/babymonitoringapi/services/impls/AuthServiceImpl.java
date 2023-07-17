@@ -4,7 +4,7 @@ import com.smartlab.babymonitoringapi.services.IAuthService;
 import com.smartlab.babymonitoringapi.utils.JWTUtils;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.dtos.requests.AuthenticationRequest;
-import com.smartlab.babymonitoringapi.web.dtos.requests.VerifyTokenRequest;
+import com.smartlab.babymonitoringapi.web.dtos.requests.ValidateTokenRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +55,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public BaseResponse validateToken(VerifyTokenRequest request) {
+    public BaseResponse validateToken(ValidateTokenRequest request) {
         Boolean isTokenValid = JWTUtils.isValidateToken(request.getToken(), jwtSecret);
 
         if (!isTokenValid) {

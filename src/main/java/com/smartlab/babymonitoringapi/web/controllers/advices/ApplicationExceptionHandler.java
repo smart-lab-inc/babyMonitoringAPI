@@ -54,8 +54,6 @@ public class ApplicationExceptionHandler {
     public ResponseEntity<BaseResponse> handleAccessDeniedException(AccessDeniedException ex) {
         Map<String, String> errors = new HashMap<>();
 
-        System.out.println(ex.getMessage());
-
         errors.put("message", "Access to the requested resource is forbidden");
 
         return BaseResponse.builder()
