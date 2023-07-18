@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -37,12 +38,14 @@ public class AuthServiceImpl implements IAuthService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         String email = userDetails.getUsername();
-
         String fullName = userDetails.getUser().getFirstName() + " " + userDetails.getUser().getLastName();
+        List<String> monitorIds = userDetails.getUser().getMonitorIds();
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("userId", userDetails.getUser().getId());
         payload.put("fullName", fullName);
+        payload.put("monitorIds", monitorIds);
+
 
         String token = JWTUtils.generateToken(email, payload, jwtSecret, 30);
 
