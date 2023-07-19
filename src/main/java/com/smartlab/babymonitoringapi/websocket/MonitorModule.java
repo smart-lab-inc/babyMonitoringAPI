@@ -46,7 +46,7 @@ public class MonitorModule {
             String token = client.getHandshakeData().getSingleUrlParam("token");
             String monitorId = client.getHandshakeData().getSingleUrlParam("monitorId");
 
-            if (token.isEmpty() || monitorId.isEmpty()) {
+            if (token == null || monitorId == null || token.isEmpty() || monitorId.isEmpty()) {
                 socketService.sendErrorMessageToSocket(client, "Token or monitorId is needed");
                 client.disconnect();
                 return;
