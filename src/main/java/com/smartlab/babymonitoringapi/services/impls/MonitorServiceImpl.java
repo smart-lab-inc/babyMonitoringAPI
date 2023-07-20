@@ -5,14 +5,19 @@ import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IMonitorRepository;
 import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.IUserService;
+import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.dtos.requests.CreateMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
+import com.smartlab.babymonitoringapi.web.dtos.responses.GetMonitorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -62,5 +67,42 @@ public class MonitorServiceImpl implements IMonitorService {
     @Override
     public Monitor findOneAndEnsureExistBySerialNumber(String serialNumber) {
         return repository.findOneBySerialNumber(serialNumber).orElseThrow(() -> new ObjectNotFoundException("Monitor not found"));
+    }
+
+    @Override
+    public BaseResponse listByUserId(String userId) {
+        UserDetailsImpl userAuthenticated = getUserAuthenticated();
+
+        if (!userAuthenticated.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException();
+        }
+
+        List<Monitor> monitorList = repository.findAllByUserId(userId);
+
+        List<GetMonitorResponse> monitorResponseList = monitorList.stream().map(this::toGetMonitorResponse).toList();
+
+
+        return BaseResponse.builder()
+                .data(monitorResponseList)
+                .message("Monitors found")
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .success(Boolean.TRUE)
+                .build();
+    }
+
+    GetMonitorResponse toGetMonitorResponse(Monitor monitor) {
+        GetMonitorResponse response = new GetMonitorResponse();
+
+        response.setId(monitor.getId());
+        response.setSerialNumber(monitor.getSerialNumber());
+        response.setUserId(monitor.getUserId());
+
+        return response;
+    }
+
+    private static UserDetailsImpl getUserAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (UserDetailsImpl) authentication.getPrincipal();
     }
 }

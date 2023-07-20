@@ -12,4 +12,6 @@ public interface IMonitorService {
     Monitor update(Monitor monitor);
 
     Monitor findOneAndEnsureExistBySerialNumber(String serialNumber);
+
+    BaseResponse listByUserId(String userId);
 }
