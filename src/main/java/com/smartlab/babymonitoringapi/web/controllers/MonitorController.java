@@ -6,10 +6,7 @@ import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("monitor")
@@ -21,5 +18,11 @@ public class MonitorController {
     @PostMapping
     public ResponseEntity<BaseResponse> create(@RequestBody @Valid CreateMonitorRequest request) {
         return service.create(request).apply();
+    }
+
+    @GetMapping("user/{userId}")
+    public ResponseEntity<BaseResponse> listByUserId(@PathVariable String userId) {
+        System.out.println("userId = " + userId);
+        return service.listByUserId(userId).apply();
     }
 }
