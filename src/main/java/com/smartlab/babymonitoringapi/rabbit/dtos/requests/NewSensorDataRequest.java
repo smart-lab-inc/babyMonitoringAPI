@@ -7,9 +7,7 @@ import java.util.List;
 
 @Getter
 public class NewSensorDataRequest {
-
     private String monitorId;
-
     private List<NewSensorDataBodyRequest> body;
-
+    private String isReadyToStore;
 }

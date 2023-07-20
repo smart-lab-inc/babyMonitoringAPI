@@ -42,8 +42,12 @@ public class Consumer {
                 "New sensor data received",
                 true
         );
-        saveSensorData(request.getBody(), request.getMonitorId());
+
         processCryDetection(request);
+
+        if (request.getIsReadyToStore().equals("true")) {
+            saveSensorData(request.getBody(), request.getMonitorId());
+        }
     }
 
     private void saveSensorData(List<NewSensorDataBodyRequest> body, String monitorId) {
@@ -54,8 +58,8 @@ public class Consumer {
         Map<String, Boolean> data = new HashMap<>();
 
         newSensorDataRequest.getBody().forEach(sensorData -> {
-            if (sensorData.getName().equals("movement")) {
-                data.put("movement", sensorData.getValue() > 0);
+            if (sensorData.getName().equals("moved")) {
+                data.put("moved", sensorData.getValue() > 0);
             } else if (sensorData.getName().equals("sound")) {
                 data.put("sound", sensorData.getValue() > 0);
             }
@@ -63,7 +67,7 @@ public class Consumer {
 
         cryDetectionService.processCryDetection(
                 newSensorDataRequest.getMonitorId(),
-                data.get("movement"),
+                data.get("moved"),
                 data.get("sound")
         );
     }
