@@ -49,7 +49,7 @@ public class ApplicationExceptionHandler {
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .build().apply();
     }
-
+    
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<BaseResponse> handleAccessDeniedException(AccessDeniedException ex) {
         Map<String, String> errors = new HashMap<>();

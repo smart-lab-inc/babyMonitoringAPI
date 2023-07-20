@@ -17,14 +17,14 @@ import com.smartlab.babymonitoringapi.web.dtos.responses.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
+
+import static com.smartlab.babymonitoringapi.utils.AuthenticationUtils.getUserAuthenticated;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -42,10 +42,8 @@ public class UserServiceImpl implements IUserService {
     @Lazy
     private IMonitorService monitorService;
 
-    private static UserDetailsImpl getUserAuthenticated() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (UserDetailsImpl) authentication.getPrincipal();
-    }
+    private User userAuthenticated = getUserAuthenticated().getUser();
+
 
     @Override
     public BaseResponse create(CreateUserRequest request) {
@@ -68,9 +66,8 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse get(String id) {
-        UserDetailsImpl userDetails = getUserAuthenticated();
 
-        if (!userDetails.getUser().getId().equals(id)) {
+        if (!userAuthenticated.getId().equals(id)) {
             throw new AccessDeniedException();
         }
 
@@ -97,7 +94,6 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse update(UpdateUserRequest request, String id) {
-        User userAuthenticated = getUserAuthenticated().getUser();
 
         if (!userAuthenticated.getId().equals(id)) {
             throw new AccessDeniedException();
@@ -119,8 +115,6 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse update(UpdateUserMonitorRequest request) {
-        User userAuthenticated = getUserAuthenticated().getUser();
-
         if (userAuthenticated.getId().isEmpty()) {
             throw new AccessDeniedException();
         }
@@ -158,13 +152,11 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse delete(String id) {
-        User user = getUserAuthenticated().getUser();
-
         if (!repository.existsById(id)) {
             throw new ObjectNotFoundException("User not found");
         }
 
-        if (!user.getId().equals(id)) {
+        if (!userAuthenticated.getId().equals(id)) {
             throw new AccessDeniedException();
         }
 

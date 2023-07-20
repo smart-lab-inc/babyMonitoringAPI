@@ -14,12 +14,12 @@ import com.smartlab.babymonitoringapi.web.dtos.responses.GetSensorDataResponse;
 import com.smartlab.babymonitoringapi.web.dtos.responses.GetStatisticsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static com.smartlab.babymonitoringapi.utils.AuthenticationUtils.getUserAuthenticated;
 
 @Service
 public class SensorDataServiceImpl implements ISensorDataService {
@@ -30,10 +30,7 @@ public class SensorDataServiceImpl implements ISensorDataService {
     @Autowired
     private IMonitorService monitorService;
 
-    private static UserDetailsImpl getUserAuthenticated() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (UserDetailsImpl) authentication.getPrincipal();
-    }
+    private List<String> monitorIds = getUserAuthenticated().getMonitorIds();
 
     @Override
     public BaseResponse createManyWithSameMonitorId(List<NewSensorDataBodyRequest> createSensorDatumRequests, String monitorId) {
@@ -73,7 +70,7 @@ public class SensorDataServiceImpl implements ISensorDataService {
         LocalDateTime startDateTime = dateTimes.get(0);
         LocalDateTime endDateTime = dateTimes.get(1);
 
-        if (!getUserAuthenticated().getMonitorIds().contains(monitorId)) {
+        if (!monitorIds.contains(monitorId)) {
             throw new ObjectNotFoundException("Monitor not found");
         }
 
@@ -95,7 +92,7 @@ public class SensorDataServiceImpl implements ISensorDataService {
         LocalDateTime startDateTime = dateTimes.get(0);
         LocalDateTime endDateTime = dateTimes.get(1);
 
-        if (!getUserAuthenticated().getMonitorIds().contains(monitorId)) {
+        if (!monitorIds.contains(monitorId)) {
             throw new ObjectNotFoundException("Monitor not found");
         }
 
