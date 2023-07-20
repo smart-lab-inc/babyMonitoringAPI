@@ -22,7 +22,6 @@ public class MonitorController {
 
     @GetMapping("user/{userId}")
     public ResponseEntity<BaseResponse> listByUserId(@PathVariable String userId) {
-        System.out.println("userId = " + userId);
         return service.listByUserId(userId).apply();
     }
 }
