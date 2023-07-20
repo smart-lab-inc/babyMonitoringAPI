@@ -48,6 +48,7 @@ public class ApplicationSecurityConfig {
                                 .requestMatchers("/v3/api-docs/**").permitAll()
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/monitor/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/monitor/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/user/**").permitAll()
 
                                 .anyRequest().authenticated())
