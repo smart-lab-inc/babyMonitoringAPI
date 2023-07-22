@@ -6,6 +6,7 @@ import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserReposi
 import com.smartlab.babymonitoringapi.services.ISNSService;
 import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.IUserService;
+import com.smartlab.babymonitoringapi.utils.AuthenticationUtils;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.UniqueConstraintViolationException;
@@ -17,8 +18,6 @@ import com.smartlab.babymonitoringapi.web.dtos.responses.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -42,11 +41,6 @@ public class UserServiceImpl implements IUserService {
     @Lazy
     private IMonitorService monitorService;
 
-    private static UserDetailsImpl getUserAuthenticated() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (UserDetailsImpl) authentication.getPrincipal();
-    }
-
     @Override
     public BaseResponse create(CreateUserRequest request) {
         if (repository.existsByEmail(request.getEmail())) {
@@ -68,9 +62,9 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse get(String id) {
-        UserDetailsImpl userDetails = getUserAuthenticated();
+        String userAuthenticatedId = AuthenticationUtils.getUserAuthenticated().getUser().getId();
 
-        if (!userDetails.getUser().getId().equals(id)) {
+        if (!userAuthenticatedId.equals(id)) {
             throw new AccessDeniedException();
         }
 
@@ -97,7 +91,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse update(UpdateUserRequest request, String id) {
-        User userAuthenticated = getUserAuthenticated().getUser();
+        User userAuthenticated = AuthenticationUtils.getUserAuthenticated().getUser();
 
         if (!userAuthenticated.getId().equals(id)) {
             throw new AccessDeniedException();
@@ -119,7 +113,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse update(UpdateUserMonitorRequest request) {
-        User userAuthenticated = getUserAuthenticated().getUser();
+        User userAuthenticated = AuthenticationUtils.getUserAuthenticated().getUser();
 
         if (userAuthenticated.getId().isEmpty()) {
             throw new AccessDeniedException();
@@ -158,13 +152,13 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse delete(String id) {
-        User user = getUserAuthenticated().getUser();
+        String userAuthenticatedId = AuthenticationUtils.getUserAuthenticated().getUser().getId();
 
         if (!repository.existsById(id)) {
             throw new ObjectNotFoundException("User not found");
         }
 
-        if (!user.getId().equals(id)) {
+        if (!userAuthenticatedId.equals(id)) {
             throw new AccessDeniedException();
         }
 
