@@ -5,6 +5,7 @@ import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IMonitorRepository;
 import com.smartlab.babymonitoringapi.services.IMonitorService;
 import com.smartlab.babymonitoringapi.services.IUserService;
+import com.smartlab.babymonitoringapi.utils.AuthenticationUtils;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.dtos.requests.CreateMonitorRequest;
@@ -71,9 +72,11 @@ public class MonitorServiceImpl implements IMonitorService {
 
     @Override
     public BaseResponse listByUserId(String userId) {
-        UserDetailsImpl userAuthenticated = getUserAuthenticated();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (!userAuthenticated.getUser().getId().equals(userId)) {
+        String userAuthenticatedId = AuthenticationUtils.getUserAuthenticatedFrom(authentication).getId();
+
+        if (!userAuthenticatedId.equals(userId)) {
             throw new AccessDeniedException();
         }
 
@@ -101,8 +104,4 @@ public class MonitorServiceImpl implements IMonitorService {
         return response;
     }
 
-    private static UserDetailsImpl getUserAuthenticated() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (UserDetailsImpl) authentication.getPrincipal();
-    }
 }
