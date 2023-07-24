@@ -74,7 +74,7 @@ public class MonitorServiceImpl implements IMonitorService {
     public BaseResponse listByUserId(String userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String userAuthenticatedId = AuthenticationUtils.getUserAuthenticatedFrom(authentication).getUser().getId();
+        String userAuthenticatedId = AuthenticationUtils.getUserAuthenticatedFrom(authentication).getId();
 
         if (!userAuthenticatedId.equals(userId)) {
             throw new AccessDeniedException();

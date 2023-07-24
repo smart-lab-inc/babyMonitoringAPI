@@ -3,15 +3,15 @@ package com.smartlab.babymonitoringapi.services.impls;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.Monitor;
 import com.smartlab.babymonitoringapi.persistance.mongo.documents.User;
 import com.smartlab.babymonitoringapi.persistance.mongo.repositories.IUserRepository;
-import com.smartlab.babymonitoringapi.services.ISNSService;
 import com.smartlab.babymonitoringapi.services.IMonitorService;
+import com.smartlab.babymonitoringapi.services.ISNSService;
 import com.smartlab.babymonitoringapi.services.IUserService;
 import com.smartlab.babymonitoringapi.utils.AuthenticationUtils;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.AccessDeniedException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.ObjectNotFoundException;
 import com.smartlab.babymonitoringapi.web.controllers.exceptions.UniqueConstraintViolationException;
-import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.CreateUserRequest;
+import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserMonitorRequest;
 import com.smartlab.babymonitoringapi.web.dtos.requests.UpdateUserRequest;
 import com.smartlab.babymonitoringapi.web.dtos.responses.BaseResponse;
 import com.smartlab.babymonitoringapi.web.dtos.responses.UserResponse;
@@ -66,7 +66,7 @@ public class UserServiceImpl implements IUserService {
     public BaseResponse get(String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String userAuthenticatedId = AuthenticationUtils.getUserAuthenticatedFrom(authentication).getUser().getId();
+        String userAuthenticatedId = AuthenticationUtils.getUserAuthenticatedFrom(authentication).getId();
 
         if (!userAuthenticatedId.equals(id)) {
             throw new AccessDeniedException();
@@ -97,7 +97,7 @@ public class UserServiceImpl implements IUserService {
     public BaseResponse update(UpdateUserRequest request, String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        User userAuthenticated = AuthenticationUtils.getUserAuthenticatedFrom(authentication).getUser();
+        User userAuthenticated = AuthenticationUtils.getUserAuthenticatedFrom(authentication);
 
         if (!userAuthenticated.getId().equals(id)) {
             throw new AccessDeniedException();
@@ -121,7 +121,7 @@ public class UserServiceImpl implements IUserService {
     public BaseResponse update(UpdateUserMonitorRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        User userAuthenticated = AuthenticationUtils.getUserAuthenticatedFrom(authentication).getUser();
+        User userAuthenticated = AuthenticationUtils.getUserAuthenticatedFrom(authentication);
 
         if (userAuthenticated.getId().isEmpty()) {
             throw new AccessDeniedException();
@@ -162,7 +162,7 @@ public class UserServiceImpl implements IUserService {
     public BaseResponse delete(String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String userAuthenticatedId = AuthenticationUtils.getUserAuthenticatedFrom(authentication).getUser().getId();
+        String userAuthenticatedId = AuthenticationUtils.getUserAuthenticatedFrom(authentication).getId();
 
         if (!repository.existsById(id)) {
             throw new ObjectNotFoundException("User not found");
